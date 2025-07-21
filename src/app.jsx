@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import TransporterDashboard from './pages/Transporter_dashboard';
+import TransporterDashboard from './pages/TraFix';
 // import Home from './pages/home'; // You can create this as a landing page
 import CarrierRegistration from './pages/signup/transporter_registration'; 
 import ShipperRegistration from './pages/signup/shipper_registration'; 
