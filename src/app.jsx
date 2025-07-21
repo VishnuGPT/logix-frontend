@@ -3,20 +3,20 @@ import TransporterDashboard from './pages/transporter_dashboard';
 // import Home from './pages/home'; // You can create this as a landing page
 import CarrierRegistration from './pages/signup/transporter_registration'; 
 import ShipperRegistration from './pages/signup/shipper_registration'; 
-import Shipments from './pages/dashboard/shipments'; // Assuming you have this component
-import Consignment from './pages/dashboard/consignment'; // Assuming you have this component
+import Shipments from './pages/dashboard/Shipments'; // Assuming you have this component
+import Consignment from './pages/dashboard/Consignment'; // Assuming you have this component
 // import AboutPage from './pages/aboutUs';
 // import CareersPage from './pages/Join_us';
 import ClientDashboard from './pages/client_dashboard';
 import AvailableTransporters from './pages/transporter_list'; // Assuming you have this component
-import ShipmentRegistration from './pages/shipment_registration';
+import ShipmentRegistration from './pages/Shipment_registration';
 // import AboutPage from './pages/aboutUs';
 // import CareersPage from './pages/Join_us';
 import SignInPage from './pages/sign_in'; // Assuming you have this component
 import Footer from './components/ui/footer';  
 import Navbar from './components/ui/navBar';
 import LandingPage from './pages/landing_page';
-import AboutUs from './pages/about_us';
+import AboutUs from './pages/About_us';
 import Careers from './pages/career';
 
 import SignupFormPage from './pages/signup_otp';
