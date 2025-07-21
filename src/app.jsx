@@ -14,7 +14,7 @@ import ShipmentRegistration from './pages/Shipment_registration';
 // import CareersPage from './pages/Join_us';
 import SignInPage from './pages/sign_in'; // Assuming you have this component
 import Footer from './components/ui/footer';  
-import Navbar from './components/ui/navBar';
+import Navbar from './components/ui/NavBar';
 import LandingPage from './pages/Landing_page';
 import AboutUs from './pages/About_us';
 import Careers from './pages/career';
