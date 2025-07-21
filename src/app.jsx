@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import TransporterDashboard from './pages/transporter_dashboard';
+import TransporterDashboard from './pages/Transporter_dashboard';
 // import Home from './pages/home'; // You can create this as a landing page
 import CarrierRegistration from './pages/signup/transporter_registration'; 
 import ShipperRegistration from './pages/signup/shipper_registration'; 
@@ -7,22 +7,22 @@ import Shipments from './pages/dashboard/Shipments'; // Assuming you have this c
 import Consignment from './pages/dashboard/Consignment'; // Assuming you have this component
 // import AboutPage from './pages/aboutUs';
 // import CareersPage from './pages/Join_us';
-import ClientDashboard from './pages/client_dashboard';
-import AvailableTransporters from './pages/transporter_list'; // Assuming you have this component
+import ClientDashboard from './pages/Client_dashboard';
+import AvailableTransporters from './pages/Transporter_list'; // Assuming you have this component
 import ShipmentRegistration from './pages/Shipment_registration';
 // import AboutPage from './pages/aboutUs';
 // import CareersPage from './pages/Join_us';
 import SignInPage from './pages/sign_in'; // Assuming you have this component
 import Footer from './components/ui/footer';  
 import Navbar from './components/ui/navBar';
-import LandingPage from './pages/landing_page';
+import LandingPage from './pages/Landing_page';
 import AboutUs from './pages/About_us';
 import Careers from './pages/career';
 
 import SignupFormPage from './pages/signup_otp';
 
-import VehicleRegistration from './pages/vehicle_registration';
-import DriverRegistration from './pages/driver_registration';
+import VehicleRegistration from './pages/Vehicle_registration';
+import DriverRegistration from './pages/Driver_registration';
 
 function App() {
   return (

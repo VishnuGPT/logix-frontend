@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import KeyFeatures from "./landingPageComponents/keyFeatures.jsx";
+import KeyFeatures from "./landingPageComponents/KeyFeatures.jsx";
 import News from "./landingPageComponents/news.jsx";
 import CaseStudyShowcase from "./landingPageComponents/caseStudy.jsx";
 import Testimonials from "./landingPageComponents/testimonials.jsx";
