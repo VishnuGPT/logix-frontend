@@ -1,7 +1,7 @@
 {
   "outputDirectory": "dist",
   "buildCommand": "",
-  "ignoreCommand": "echo 'using prebuilt output'",
+  "ignoreCommand": "echo 'skip build'",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ]

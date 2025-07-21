@@ -15,7 +15,7 @@ export default function Navbar() {
           <img src="/LOGO.png" alt="LxJ" />
         </span>
         <div className="hidden md:flex space-x-6  text-neutral-800 font-semibold">
-          <a href="/" className="hover:text-[#8bb5f4] transition">Home</a>
+          <a href="/" className="hover:text-[#8bb5f4] transition">Home,test</a>
           <button
             className="hover:text-[#8ec5ff] transition bg-transparent"
             onClick={() => navigate('/about-us')}
