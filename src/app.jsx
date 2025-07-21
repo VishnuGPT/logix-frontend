@@ -13,7 +13,7 @@ import ShipmentRegistration from './pages/Shipment_registration';
 // import AboutPage from './pages/aboutUs';
 // import CareersPage from './pages/Join_us';
 import SignInPage from './pages/Sign_in'; // Assuming you have this component
-import Footer from './components/ui/Foot';  
+import Footer from './components/ui/Footer.jsx';  
 import Navbar from './components/ui/NavBar';
 import LandingPage from './pages/Landing_page';
 import AboutUs from './pages/About_us';
