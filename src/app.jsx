@@ -12,14 +12,14 @@ import AvailableTransporters from './pages/Transporter_list'; // Assuming you ha
 import ShipmentRegistration from './pages/Shipment_registration';
 // import AboutPage from './pages/aboutUs';
 // import CareersPage from './pages/Join_us';
-import SignInPage from './pages/sign_in'; // Assuming you have this component
-import Footer from './components/ui/footer';  
-import Navbar from './components/ui/NavBar';
+import SignInPage from './pages/Sign_in'; // Assuming you have this component
+import Footer from './components/ui/Foot';  
+import Navbar from './components/ui/NaviBar';
 import LandingPage from './pages/Landing_page';
 import AboutUs from './pages/About_us';
-import Careers from './pages/career';
+import Careers from './pages/Career';
 
-import SignupFormPage from './pages/signup_otp';
+import SignupFormPage from './pages/Signup_otp';
 
 import VehicleRegistration from './pages/Vehicle_registration';
 import DriverRegistration from './pages/Driver_registration';
