@@ -41,14 +41,14 @@ export default function SignupFormPage() {
 
   const handleSendOtp = () => {
     setError('');
-    if (phone.match(/^\d{10}$/)) {
+    if (email.match(/^\S+@\S+\.\S+$/)) {
       setIsLoading(true);
       setTimeout(() => { // Simulate API call
         setShowOtp(true);
         setIsLoading(false);
       }, 1000);
     } else {
-      setError('Please enter a valid 10-digit phone number.');
+      setError('Please enter a valid Email Address');
     }
   };
 
@@ -106,11 +106,11 @@ export default function SignupFormPage() {
             {/* --- STEP 2: PHONE VERIFICATION --- */}
             {step === 2 && (
               <div className="space-y-5">
-                <h2 className="text-2xl font-bold text-center text-headings">Verify Your Phone Number</h2>
+                <h2 className="text-2xl font-bold text-center text-headings">Verify Your EMAIL</h2>
                 <div>
-                  <label htmlFor="phone" className="block mb-1.5 text-sm font-medium text-text">Phone Number</label>
+                  <label htmlFor="email" className="block mb-1.5 text-sm font-medium text-text">Email Address</label>
                   <div className="flex gap-2">
-                    <Input id="phone" type="tel" placeholder="Enter 10-digit phone" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={showOtp} />
+                    <Input id="email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={showOtp} />
                     <Button type="button" onClick={handleSendOtp} disabled={isLoading || showOtp}>
                       {isLoading ? 'Sending...' : (showOtp ? 'Sent' : 'Send OTP')}
                     </Button>
@@ -129,8 +129,8 @@ export default function SignupFormPage() {
                <form onSubmit={handleSubmit} className="space-y-5">
                 <h2 className="text-2xl font-bold text-center text-headings">Final Details</h2>
                 <div>
-                  <label htmlFor="email" className="block mb-1.5 text-sm font-medium text-text">Email</label>
-                  <Input id="email" type="email" placeholder="example@mail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <label htmlFor="phone" className="block mb-1.5 text-sm font-medium text-text">Phone Number</label>
+                  <Input id="phone" type="tel" placeholder="Enter your phone number" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                 </div>
                 <div>
                   <label htmlFor="gst" className="block mb-1.5 text-sm font-medium text-text">GST Number</label>

@@ -15,13 +15,12 @@ export default function LandingPage() {
       {/* UPDATED: Replaced the truck image with a clean, modern background color from the theme. */}
       <section className="bg-headings text-background">
         <div className="max-w-7xl mx-auto flex items-center min-h-screen px-6 py-24">
-          <div className="max-w-3xl"> {/* Constrained width for better readability */}
+          <div className="sm:px-20 max-w-2xl"> {/* Constrained width for better readability */}
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
-              Transforming India’s Freight with Smart, Scalable Tech
+              Your Junction to Smarter Logistics
             </h1>
-            <p className="text-lg text-background/80 mb-10"> {/* text-background/80 makes it slightly transparent */}
-              Built for fleet owners, shippers, and mid-sized logistics players
-              across Tier-2 & Tier-3 cities.
+            <p className="text-xl text-background/80 mb-10"> {/* text-background/80 makes it slightly transparent */}
+            India's First Unified Logistics Solution Platform
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               {/* UPDATED: Buttons now use consistent theme colors. */}
