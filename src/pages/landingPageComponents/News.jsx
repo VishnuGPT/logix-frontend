@@ -1,76 +1,67 @@
+import { ArrowUpRight } from "lucide-react";
+
+// Data for news articles is now in an array for easy management.
+const articles = [
+  {
+    title: "How Tier-2 Logistics is the Next Big Opportunity in India",
+    source: "Times of India",
+    url: "#", // Replace with actual URL
+  },
+  {
+    title: "Telematics and Driver Safety: What You Must Know",
+    source: "The Hindu",
+    url: "#", // Replace with actual URL
+  },
+  {
+    title: "Digital Freight Platforms vs Traditional Brokers",
+    source: "Hindustan Times",
+    url: "#", // Replace with actual URL
+  },
+];
+
 export default function News() {
   return (
-    <section className="font-inter relative min-h-screen snap-start bg-lxj-softWhite px-6 py-28 md:py-40  text-gray-900">
-      <div className="max-w-5xl mx-auto space-y-16">
-        {/* Heading */}
-        <div className="text-center">
-          <h2 className="text-5xl font-extrabold mb-4 text-lxj-primary">Top Reads</h2>
-          <p className="text-lxj-alert text-lg">
+    // UPDATED: Section styling is now consistent.
+    <section className="bg-background py-20 sm:py-24">
+      <div className="max-w-5xl mx-auto px-6">
+        {/* UPDATED: Section header uses theme colors. */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-headings mb-4">
+            Top Reads & Insights
+          </h2>
+          <p className="text-lg text-text/70 max-w-2xl mx-auto">
             Explore the latest insights and trends shaping logistics and freight.
           </p>
         </div>
 
-        {/* News Cards */}
-        <div className="grid grid-cols-1 gap-6">
-          {/* Article 1 */}
-          <div className="bg-white p-6 border border-zinc-200 rounded-2xl shadow-md flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <p className="text-lg text-lxj-primary font-semibold">
-                  “<span className="hover:underline">How Tier-2 Logistics is the Next Big Opportunity in India</span>”
-                </p>
-                <p className="text-sm text-gray-500 mt-1">— Times of India</p>
+        {/* UPDATED: Mapping over the articles array. */}
+        <div className="space-y-4">
+          {articles.map((article) => (
+            // UPDATED: Card style is now minimalist and consistent.
+            <div
+              key={article.title}
+              className="bg-white p-6 rounded-lg border border-black/5 transition hover:border-black/10"
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-headings hover:text-interactive transition">
+                    {article.title}
+                  </a>
+                  <p className="text-sm text-text/70 mt-1">— {article.source}</p>
+                </div>
+                {/* UPDATED: Button is now a cleaner link style. */}
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm font-semibold text-interactive whitespace-nowrap group"
+                >
+                  Read More
+                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                </a>
               </div>
-              <a
-                href="https://timesofindia.indiatimes.com" // replace with actual URL
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 md:mt-0 inline-block px-4 py-2 text-sm font-semibold rounded-lg bg-lxj-accent text-white hover:bg-lxj-primary transition"
-              >
-                Read More
-              </a>
             </div>
-          </div>
-
-          {/* Article 2 */}
-          <div className="bg-white p-6 border border-zinc-200 rounded-2xl shadow-md flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <p className="text-lg text-lxj-primary font-semibold">
-                  “<span className="hover:underline">Telematics and Driver Safety: What You Must Know</span>”
-                </p>
-                <p className="text-sm text-gray-500 mt-1">— The Hindu</p>
-              </div>
-              <a
-                href="https://www.thehindu.com" // replace with actual URL
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 md:mt-0 inline-block px-4 py-2 text-sm font-semibold rounded-lg bg-lxj-accent text-white hover:bg-lxj-primary transition"
-              >
-                Read More
-              </a>
-            </div>
-          </div>
-
-          {/* Article 3 */}
-          <div className="bg-white p-6 border border-zinc-200 rounded-2xl shadow-md flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <p className="text-lg text-lxj-primary font-semibold">
-                  “<span className="hover:underline">Digital Freight Platforms vs Traditional Brokers</span>”
-                </p>
-                <p className="text-sm text-gray-500 mt-1">— Hindustan Times</p>
-              </div>
-              <a
-                href="https://www.hindustantimes.com" // replace with actual URL
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 md:mt-0 inline-block px-4 py-2 text-sm font-semibold rounded-lg bg-lxj-accent text-white hover:bg-lxj-primary transition"
-              >
-                Read More
-              </a>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

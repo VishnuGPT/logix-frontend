@@ -1,94 +1,93 @@
 import { AlertTriangle, Lightbulb, Rocket, TrendingDown, TrendingUp } from "lucide-react";
 
+// Data is extracted into an object for cleaner code.
+const caseStudyData = {
+  title: "Optimizing Freight in Madhya Pradesh",
+  challenge: {
+    icon: <AlertTriangle className="h-6 w-6 text-accent-cta" />,
+    title: "The Challenge",
+    text: "A regional FMCG distributor was losing valuable time and customer trust due to haphazard load matching and last-minute route changes, which inflated their operating costs.",
+  },
+  solution: {
+    icon: <Lightbulb className="h-6 w-6 text-interactive" />,
+    title: "Our Solution",
+    text: "We built a dynamic route-optimization engine that evaluated live traffic, load weight, and vehicle availability, paired with a smart, real-time bidding module for carriers.",
+  },
+  results: {
+    icon: <Rocket className="h-6 w-6 text-interactive" />,
+    title: "The Results",
+    metrics: [
+      {
+        icon: <TrendingUp className="h-8 w-8 text-interactive" />,
+        value: "+23%",
+        label: "Increase in On-Time Delivery",
+      },
+      {
+        icon: <TrendingDown className="h-8 w-8 text-interactive" />,
+        value: "-18%",
+        label: "Reduction in Logistics Costs",
+      },
+    ],
+  },
+};
+
 export default function CaseStudyShowcase() {
   return (
-    <section className="snap-start relative min-h-screen bg-lxj-softWhite py-10 px-6 md:px-12 font-inter">
-      <div className="max-w-6xl mt-10 mx-auto overflow-hidden">
-        <div className="grid md:grid-cols-1 gap-0">
+    <section className="bg-background py-20 sm:py-24">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Section Header */}
+        <div className="text-left md:text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-headings mb-4">
+            See Our Platform in Action
+          </h2>
+          <p className="text-lg text-text/70 max-w-2xl mx-auto">
+            Here's how we solved a real-world logistics challenge for a valued partner.
+          </p>
+        </div>
+
+        {/* Main two-column layout for the case study */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           
-
-          {/* Case Study Story */}
-          <div className="px-8 flex flex-col justify-between">
-            <div className="space-y-8 text-gray-800 text-lg leading-relaxed">
-           <div>
-           <h1 className="text-4xl md:text-5xl font-bold text-lxj-primary drop-shadow-sm">
-             Case Study
-             </h1> 
-              <h2 className="text-2xl md:text-3xl font-bold text-lxj-alert drop-shadow-sm">
-                Optimizing Freight in Madhya Pradesh
-              </h2>
-           </div>
-
-              {/* Challenge */}
-              <div className="space-y-3 bg-white rounded-3xl p-6 shadow-xl border border-zinc-200 ">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-lxj-alert" />
-                  <h3 className="text-2xl font-bold text-lxj-alert">Challenge</h3>
-                </div>
-                <p className="text-base">
-                  A regional FMCG distributor was losing valuable time—and customer trust—because loads were matched
-                  haphazardly and truck routes changed at the last minute. These inefficiencies created frequent delays
-                  that rippled through their supply chain and inflated operating costs.
-                </p>
+          {/* Left Column: Narrative (Challenge & Solution) */}
+          <div className="lg:col-span-3 space-y-8">
+            <h3 className="text-3xl font-bold text-headings -mb-4">{caseStudyData.title}</h3>
+            {/* Challenge Card */}
+            <div className="bg-white p-6 rounded-lg border border-black/5">
+              <div className="flex items-center gap-3 mb-3">
+                {caseStudyData.challenge.icon}
+                <h4 className="text-2xl font-bold text-headings">{caseStudyData.challenge.title}</h4>
               </div>
-
-              {/* Solution */}
-              <div className="space-y-3 bg-white  rounded-3xl p-6 shadow-xl border border-zinc-200">
-                <div className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-lxj-accent" />
-                  <h3 className="text-2xl font-bold text-lxj-accent">Our Solution</h3>
-                </div>
-                <p className="text-base">
-                  We built a dynamic route‑optimisation engine that evaluated live traffic, load weight, and vehicle
-                  availability, then paired it with a smart bidding module. Carriers could submit bids in real time,
-                  ensuring each shipment found the most efficient and cost‑effective path before wheels ever hit the
-                  road.
-                </p>
-              </div>
-
-              {/* Result */}
-              <div className="space-y-6 bg-white  rounded-3xl p-6 shadow-xl border border-zinc-200">
-                {/* Header */}
-                <div className="flex items-center gap-3">
-                  <Rocket className="w-6 h-6 text-lxj-accent" />
-                  <h3 className="text-2xl font-bold text-lxj-accent">The Result</h3>
-                </div>
-
-                {/* Result Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Result 1 */}
-                  <div className="bg-lxj-accent border border-zinc-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-200">
-                    <div className="flex items-center gap-4">
-                      <TrendingUp className="w-10 h-10 text-green-400" />
-                      <div>
-                        <p className="text-3xl font-bold text-white">+23%</p>
-                        <p className="text-sm text-gray-100 mt-1">Increase in On-Time Delivery</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Result 2 */}
-                  <div className="bg-lxj-accent border border-zinc-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-200">
-                    <div className="flex items-center gap-4">
-                      <TrendingDown className="w-10 h-10 text-green-400" />
-                      <div>
-                        <p className="text-3xl font-bold text-white">-18%</p>
-                        <p className="text-sm text-gray-100 mt-1">Reduction in Logistics Costs</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <p className="text-text/90">{caseStudyData.challenge.text}</p>
             </div>
+            
+            {/* Solution Card */}
+            <div className="bg-white p-6 rounded-lg border border-black/5">
+              <div className="flex items-center gap-3 mb-3">
+                {caseStudyData.solution.icon}
+                <h4 className="text-2xl font-bold text-headings">{caseStudyData.solution.title}</h4>
+              </div>
+              <p className="text-text/90">{caseStudyData.solution.text}</p>
+            </div>
+          </div>
 
-            {/* Call‑to‑action Button */}
-            <div className="mt-10 mx-auto">
-              <a
-                href="/case-studies"
-                className="inline-block px-6 py-3 text-lg font-semibold rounded-xl bg-lxj-accent text-white hover:bg-lxj-primary transition duration-200"
-              >
-                View More Case Studies
-              </a>
+          {/* Right Column: Results */}
+          <div className="lg:col-span-2">
+            <div className="bg-white p-6 rounded-lg border border-black/5 sticky top-24">
+              <div className="flex items-center gap-3 mb-6">
+                {caseStudyData.results.icon}
+                <h4 className="text-2xl font-bold text-headings">{caseStudyData.results.title}</h4>
+              </div>
+              <div className="space-y-6">
+                {caseStudyData.results.metrics.map((metric) => (
+                  <div key={metric.label} className="flex items-center gap-4">
+                    <div className="bg-interactive/10 p-3 rounded-lg">{metric.icon}</div>
+                    <div>
+                      <p className="text-3xl font-bold text-headings">{metric.value}</p>
+                      <p className="text-text/90">{metric.label}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

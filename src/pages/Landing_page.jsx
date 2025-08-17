@@ -9,58 +9,40 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen snap-y snap-mandatory overflow-y-scroll">
-      <section className="relative h-screen snap-start">
-        {/* Background Image */}
-        <img
-          src="images/truck.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
-
-        {/* Overlay for darkening the background */}
-        <div className="absolute inset-0 bg-black/40 z-10" />
-
-        {/* Foreground Content */}
-        <div className="relative z-20 h-full flex items-center justify-center px-6 py-12">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div>
-              <h1 className="text-5xl font-extrabold tracking-tight text-white mb-6">
-                Transforming India’s Freight with Smart, Scalable Tech
-              </h1>
-              <p className="text-white text-lg mb-8">
-                Built for fleet owners, shippers, and mid-sized logistics players
-                across Tier-2 & Tier-3 cities
-              </p>
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => navigate("/signup-otp")}
-                  className="px-6 py-3 transition-all duration-300 transform bg-lxj-accent text-white rounded-full font-semibold hover:bg-lxj-primary"
-                >
-                  Get started for Free
-                </button>
-                <a
-                  href="/about-us"
-                  className="px-6 py-3 border-2 transition-all duration-300 transform border-white rounded-full text-white font-semibold hover:bg-white hover:text-lxj-accent"
-                >
-                  Explore Features →
-                </a>
-              </div>
+    // UPDATED: Removed snap-scroll for a more traditional and professional flow.
+    <div>
+      {/* --- HERO SECTION --- */}
+      {/* UPDATED: Replaced the truck image with a clean, modern background color from the theme. */}
+      <section className="bg-headings text-background">
+        <div className="max-w-7xl mx-auto flex items-center min-h-screen px-6 py-24">
+          <div className="max-w-3xl"> {/* Constrained width for better readability */}
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">
+              Transforming India’s Freight with Smart, Scalable Tech
+            </h1>
+            <p className="text-lg text-background/80 mb-10"> {/* text-background/80 makes it slightly transparent */}
+              Built for fleet owners, shippers, and mid-sized logistics players
+              across Tier-2 & Tier-3 cities.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* UPDATED: Buttons now use consistent theme colors. */}
+              <button
+                onClick={() => navigate("/signup-otp")}
+                className="px-8 py-3 bg-accent-cta text-white rounded-full font-semibold transition hover:opacity-80"
+              >
+                Get Started for Free
+              </button>
+              <a
+                href="/about-us"
+                className="px-8 py-3 border-2 border-background/50 rounded-full text-background font-semibold transition hover:bg-background hover:text-headings"
+              >
+                Explore Features →
+              </a>
             </div>
-
-            {/* Right Image */}
-            {/* <div className="relative">
-              <img
-                src="images/mobile-ui.png"
-                alt="Mobile UI"
-                className="w-full max-w-xs mx-auto drop-shadow-2xl rounded-xl"
-              />
-            </div> */}
           </div>
         </div>
       </section>
 
+      {/* --- OTHER SECTIONS --- */}
       <KeyFeatures />
       <Testimonials />
       <CaseStudyShowcase />

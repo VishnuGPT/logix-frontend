@@ -1,113 +1,108 @@
-import React, { useState } from 'react';
-import { Menu, X, Search } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom'; // Update import
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "./Button";
+
+const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "Our Story", href: "/about-us" },
+    { label: "Join Us", href: "/join-us" },
+];
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate(); // Add this line
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleMenu = () => setIsOpen(!isOpen);
 
-  return (
-    <nav className="fixed top-2 left-2 right-2 z-50 bg-white/40 backdrop-blur-md border border-white/30 shadow-lg px-6 py-3 flex items-center justify-between rounded-none md:rounded-full">
+    return (
+        <>
+            {/* KEPT: Your preferred fixed, full-width navbar style. */}
+            {/* THEMED: Updated colors to match your website's theme. z-index is set to 40. */}
+            <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-black/10 shadow-sm">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                    {/* --- Logo --- */}
+                    <Link to="/" className="flex-shrink-0">
+                        <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-10 w-auto" />
+                    </Link>
 
-      {/* Left Section: Logo + Nav Links */}
-      <div className="flex items-center space-x-6">
-        <span className="h-8 w-8 font-bold text-xl tracking-wide text-neutral-900">
-          <img src="/LOGO.png" alt="LxJ" />
-        </span>
-        <div className="hidden md:flex space-x-6  text-neutral-800 font-semibold">
-          <a href="/" className="hover:text-[#8bb5f4] transition">Home,test</a>
-          <button
-            className="hover:text-[#8ec5ff] transition bg-transparent"
-            onClick={() => navigate('/about-us')}
-          >
-            Our Story
-          </button>
-          <a href="/join-us" className="hover:text-[#9193ad] transition">Join Us</a>
-        </div>
-      </div>
+                    {/* --- Desktop Nav Links --- */}
+                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text">
+                        {navLinks.map((link) => (
+                            <Link key={link.label} to={link.href} className="hover:text-interactive transition-colors">
+                                {link.label}
+                            </Link>
+                        ))}
+                    </div>
 
-      {/* Center Spacer */}
-      <div className="flex-1"></div>
+                    {/* --- Desktop Auth Buttons --- */}
+                    <div className="hidden md:flex items-center gap-4">
+                        <Button asChild variant="ghost">
+                            <Link to="/sign-in">Sign In</Link>
+                        </Button>
+                        {/* FIXED: Button now correctly uses Link component for navigation */}
+                        <Button asChild variant="cta">
+                            <Link to="/signup-otp">Get Started</Link>
+                        </Button>
+                    </div>
 
-      {/* Right Section */}
-      <div className="hidden md:flex items-center space-x-4">
-        {/* Sign In + Get Started */}
-        <a href="/sign-in">
-          <button className="text-neutral-800 hover:text-[#d8315b] transition font-semibold">Sign In</button>
-        </a>
-        <a href="/signup-otp">
-          <button className="bg-[#d8315b] hover:bg-[#b92549] text-white px-4 py-2 rounded-full text-sm font-semibold shadow">
-            Get Started
-          </button>
-        </a>
+                    {/* --- Mobile Menu Button --- */}
+                    <div className="md:hidden">
+                        <button onClick={toggleMenu} aria-label="Toggle menu" className="p-2 -mr-2">
+                            <Menu className="h-6 w-6 text-text" />
+                        </button>
+                    </div>
+                </div>
+            </nav>
 
-        {/* Search Bar */}
-        {/* 
-        <div className="flex items-center border border-gray-300 rounded-full px-3 py-1 bg-white ml-2">
-          <Search className="h-4 w-4 text-gray-500 mr-2" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="outline-none text-sm bg-transparent w-32"
-          />
-        </div> 
-        */}
-      </div>
+            {/* NEW: Integrated the smooth, slide-in mobile menu panel. */}
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+                            onClick={toggleMenu}
+                        />
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            className="fixed top-0 right-0 z-50 w-full max-w-sm h-full bg-background shadow-2xl flex flex-col"
+                        >
+                            <div className="flex items-center justify-between p-4 border-b border-black/10">
+                                <Link to="/" onClick={toggleMenu}>
+                                    <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-9 w-auto" />
+                                </Link>
+                                <button onClick={toggleMenu} aria-label="Close menu" className="p-2">
+                                    <X className="h-6 w-6 text-text" />
+                                </button>
+                            </div>
 
-      {/* Mobile Toggle */}
-      <div className="md:hidden z-50">
-        <button onClick={() => setIsOpen(!isOpen)}>
-          {isOpen
-            ? <X className="h-6 w-6 text-neutral-800" />
-            : <Menu className="h-6 w-6 text-neutral-800" />}
-        </button>
-      </div>
+                            <ul className="flex flex-col gap-6 text-lg font-semibold text-headings p-6">
+                                {navLinks.map((link) => (
+                                    <li key={link.label}>
+                                        <Link to={link.href} className="hover:text-interactive transition-colors" onClick={toggleMenu}>
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
 
-      {/* Mobile Dropdown */}
-      <div className={`bg-white/70 backdrop-blur-md border border-white/20 rounded-xl absolute top-full left-0 w-full px-6 py-6 md:hidden shadow-lg transition-all duration-300 ease-in-out ${isOpen ? 'block' : 'hidden'}`}>
-        {/* Centered Nav Links */}
-        <div className="flex flex-col items-center justify-center space-y-2 text-neutral-900 font-medium">
-          <a href="/" className="hover:text-[#8bb5f4] transition">Home</a>
-          <button
-            className="hover:text-[#8ec5ff] transition bg-transparent"
-            onClick={() => { setIsOpen(false); navigate('/about-us'); }}
-          >
-            Our Story
-          </button>
-          <a href="/join-us" className="hover:text-[#9193ad] transition">Join Us</a>
-        </div>
-
-        <hr className="my-4 border-white/30" />
-
-        {/* Auth Buttons */}
-        <div className="flex flex-col items-center space-y-3">
-          <a href="/sign-in">
-            <button className="text-neutral-900 hover:text-[#3e92cc] font-semibold">Sign In</button>
-          </a>
-          <a href="#features">
-            <button className="bg-[#d8315b] hover:bg-[#b92549] text-white px-4 py-2 rounded-full text-sm font-semibold shadow">
-              Get Started
-            </button>
-          </a>
-        </div>
-
-        <hr className="my-4 border-white/30" />
-
-        {/* Search Bar */}
-        {/* 
-        <div className="flex items-center justify-center">
-          <div className="flex items-center border border-gray-300 rounded-full px-3 py-1 bg-white">
-            <Search className="h-4 w-4 text-gray-500 mr-2" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="outline-none text-sm bg-transparent w-32"
-            />
-          </div>
-        </div> 
-        */}
-      </div>
-
-    </nav>
-  );
+                            <div className="mt-auto p-6 border-t border-black/10 flex flex-col gap-4">
+                                <Button asChild variant="ghost" size="lg" onClick={toggleMenu}>
+                                    <Link to="/sign-in">Sign In</Link>
+                                </Button>
+                                <Button asChild variant="cta" size="lg" onClick={toggleMenu}>
+                                    <Link to="/signup-otp">Get Started</Link>
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
+    );
 }

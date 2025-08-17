@@ -1,33 +1,39 @@
-import { Link } from 'react-router-dom';
-import { Truck, User } from 'lucide-react';
+import React from "react";
 
-const Home = () => {
+export default function AboutUs() {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white shadow-xl rounded-2xl p-8 text-center space-y-6">
-        <h1 className="text-3xl font-bold text-[#0a2463]">Welcome to LogiXjunction Logistics</h1>
-        <p className="text-gray-500">Choose your dashboard to get started</p>
+    <section className="bg-softWhite min-h-screen flex flex-col items-center">
+      {/* Hero image */}
+      <div className="w-full relative">
+        <img
+          src="/images/truck-banner.jpg" // replace with your truck image path
+          alt="Truck on highway"
+          className="w-full h-48 sm:h-64 object-cover"
+        />
+        <h1 className="absolute inset-0 flex items-center justify-center text-white text-3xl sm:text-4xl font-bold drop-shadow-lg">
+          About Us
+        </h1>
+      </div>
 
-        <div className="space-y-4">
-          <Link
-            to="/transporter-dashboard"
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#3e92cc] hover:bg-blue-400 text-white font-medium py-3 rounded-2xl transition-all shadow-sm"
-          >
-            <Truck size={20} />
-            Transporter Dashboard
-          </Link>
-
-          <Link
-            to="/client-dashboard"
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#d8315b] hover:bg-pink-500 text-white font-medium py-3 rounded-2xl transition-all shadow-sm"
-          >
-            <User size={20} />
-            Client Dashboard
-          </Link>
+      {/* Content */}
+      <div className="w-full px-4 sm:px-6 md:px-8 max-w-screen-md mx-auto -mt-6">
+        <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-lxj-primary text-center mb-4">
+            Who We Are
+          </h2>
+          <p className="text-gray-700 leading-relaxed mb-4 text-justify">
+            At <span className="font-semibold">LogiXJunction</span>, we serve as
+            a technology-first intermediary, offering a digital platform that
+            connects businesses and individuals with the right logistics service
+            providers.
+          </p>
+          <p className="text-gray-700 leading-relaxed text-justify">
+            We do not provide logistics services directly—instead, we enable
+            users to access and manage logistics more efficiently through smart
+            tools, real-time data, and streamlined workflows.
+          </p>
         </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-export default Home;
+}

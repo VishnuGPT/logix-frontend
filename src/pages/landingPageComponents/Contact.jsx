@@ -19,18 +19,18 @@ export default function ContactCTASection() {
           <div className="flex items-center gap-3">
             <Mail className="w-7 h-7 text-lxj-accent" />
             <a
-              href="mailto:support@logixjunction.in"
+              href="mailto:logixjunction@gmail.com"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline text-lxj-primary"
             >
-              support@logixjunction.in
+              logixjunction@gmail.com
             </a>
           </div>
           <div className="flex items-center gap-3">
             <Phone className="w-7 h-7 text-lxj-accent" />
-            <a href="tel:+9198XXXXXX78" className="hover:underline text-lxj-primary">
-              +91 98XXXXXX78
+            <a href="tel:+9198799782389" className="hover:underline text-lxj-primary">
+              +91 8799782389
             </a>
           </div>
           <div className="flex items-center gap-3">
@@ -42,13 +42,13 @@ export default function ContactCTASection() {
         {/* CTA Buttons */}
         <div className="flex flex-col md:flex-row justify-center items-center gap-6">
           <a
-            href="/get-started"
+            href="/shipment-registration"
             className="px-8 py-4 text-lg font-semibold rounded-xl bg-lxj-accent text-white hover:bg-lxj-primary transition shadow-md"
           >
             Get Started Now
           </a>
           <a
-            href="/schedule-demo"
+            href="/shipment-registration"
             className="px-8 py-4 text-lg font-semibold rounded-xl border-2 border-lxj-alert text-lxj-alert hover:bg-lxj-alert hover:text-white transition shadow-sm"
           >
             Schedule a Demo

@@ -1,378 +1,432 @@
-import React, { useState } from 'react';
-import { Upload, Package, MapPin, Calendar, Truck, Scale, Ruler } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Check, ChevronRight, Upload } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const ShipmentRegistration = () => {
+// Stepper component
+const steps = [
+  { number: 1, title: "Route" },
+  { number: 2, title: "Details" },
+  { number: 3, title: "Logistics" },
+];
+const Stepper = ({ currentStep }) => (
+  <div className="flex items-center justify-center w-full max-w-md mx-auto mb-12">
+    {steps.map((step, index) => (
+      <React.Fragment key={step.number}>
+        <div className="flex flex-col items-center text-center">
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+              currentStep >= step.number
+                ? "bg-interactive border-interactive text-white"
+                : "bg-background border-black/10 text-text/50"
+            }`}
+          >
+            {currentStep > step.number ? <Check size={20} /> : step.number}
+          </div>
+          <p
+            className={`mt-2 text-sm font-semibold transition-colors duration-300 ${
+              currentStep >= step.number ? "text-headings" : "text-text/50"
+            }`}
+          >
+            {step.title}
+          </p>
+        </div>
+        {index < steps.length - 1 && (
+          <div
+            className={`flex-1 h-1 mx-4 transition-colors duration-300 ${
+              currentStep > index + 1 ? "bg-interactive" : "bg-black/10"
+            }`}
+          />
+        )}
+      </React.Fragment>
+    ))}
+  </div>
+);
+
+const materialTypes = [
+  "Electronics",
+  "Automotive",
+  "Machinery",
+  "Textiles",
+  "Food",
+  "Pharmaceuticals",
+  "Chemicals",
+  "Raw Materials",
+  "Others",
+];
+const shipmentTypes = ["Full Truck Load", "Part Truck Load"];
+const loadingOptions = ["Yes", "No"];
+const coolingTypes = [
+  "None",
+  "Refrigerated",
+  "Frozen",
+  "Temperature Controlled",
+];
+
+export default function ShipmentRegistration() {
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    pickupLocation: '',
-    dropLocation: '',
-    materialType: '',
-    weight: '',
-    length: '',
-    width: '',
-    height: '',
-    estimatedDelivery: '',
-    transportMode: '',
-    shipmentType: '',
-    materialValue: '',
+    pickupLocation: "",
+    dropLocation: "",
+    pickupDate: "",
+    materialType: "",
+    coolingType: "",
+    loadingAssistance: "",
+    additionalNotes: "",
+    weight: "",
+    goodsValue: "",
+    length: "",
+    width: "",
+    height: "",
+    estimatedDeliveryDate: "",
+    shipmentType: "",
     ebayBill: null,
-    customMaterialType: ''
   });
-
-  const materialTypes = [
-    'Electronics & Technology',
-    'Automotive Parts',
-    'Machinery & Equipment',
-    'Textiles & Clothing',
-    'Food & Beverages',
-    'Pharmaceuticals',
-    'Chemicals',
-    'Raw Materials',
-    'Construction Materials',
-    'Furniture & Home Goods',
-    'Books & Documents',
-    'Hazardous Materials',
-    'Fragile Items',
-    'Perishable Goods',
-    'Others'
-  ];
-
-  const transportModes = [
-    'Road Transport',
-    'Rail Transport',
-    'Air Transport',
-    'Sea Transport',
-    'Intermodal'
-  ];
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    setFormData(prev => ({
-      ...prev,
-      ebayBill: file
-    }));
-  };
-
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const updateField = (field, value) => {
+    setError("");
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const nextStep = () => {
+    setError("");
+    if (
+      step === 1 &&
+      (!formData.pickupLocation ||
+        !formData.dropLocation ||
+        !formData.pickupDate)
+    ) {
+      setError("Please fill in all route and date details.");
+      return;
+    }
+    if (
+      step === 2 &&
+      (!formData.materialType ||
+        !formData.coolingType ||
+        !formData.loadingAssistance)
+    ) {
+      setError("Please select an option for all shipment details.");
+      return;
+    }
+    setStep((s) => s + 1);
+  };
+
+  const prevStep = () => setStep((s) => s - 1);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    try{
-      const formPayLoad = {
-        ...formData,
-        materialType : formData.materialType === 'Others'? formData.customMaterialType : formData.materialType,
-      }
+    // TODO: add submit logic
+  };
 
-      const response = await axios.post('http://localhost:5000/api/get-transporters',formPayLoad);
+  const formVariants = {
+    initial: { opacity: 0, x: 50 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -50 },
+  };
+  const formLabel = "block mb-1.5 text-sm font-medium text-text";
 
-      const suitableTransporters = response.data;
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-headings">
+              Where is your shipment going?
+            </h3>
+            <div>
+              <label htmlFor="pickupLocation" className={formLabel}>
+                Pickup Location
+              </label>
+              <Input
+                id="pickupLocation"
+                value={formData.pickupLocation}
+                onChange={(e) =>
+                  updateField("pickupLocation", e.target.value)
+                }
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="dropLocation" className={formLabel}>
+                Drop Location
+              </label>
+              <Input
+                id="dropLocation"
+                value={formData.dropLocation}
+                onChange={(e) => updateField("dropLocation", e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="pickupDate" className={formLabel}>
+                Pickup Date
+              </label>
+              <Input
+                id="pickupDate"
+                type="date"
+                value={formData.pickupDate}
+                onChange={(e) => updateField("pickupDate", e.target.value)}
+                required
+              />
+            </div>
+            <Button onClick={nextStep} className="w-full">
+              Next <ChevronRight size={16} />
+            </Button>
+          </div>
+        );
 
-      if(suitableTransporters && suitableTransporters.transporters?.length>0){
-        navigate('/available-transporters',{state:{transporters: suitableTransporters}});
-      }else{
-        alert("No suitable transporters found for the given shipment details. Please check your inputs and try again.");
-      }      
-    } catch (error){
-      console.log("error while fetching transporters: ",error);
-      alert ("something went wrong while submitting the shipment data!")
+      case 2:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-headings">
+              Shipment Details
+            </h3>
+            <div>
+              <label className={formLabel}>Material Type</label>
+              <Select
+                value={formData.materialType}
+                onValueChange={(v) => updateField("materialType", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select material type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white shadow-lg rounded-md">
+                  {materialTypes.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className={formLabel}>Cooling Type</label>
+              <Select
+                value={formData.coolingType}
+                onValueChange={(v) => updateField("coolingType", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select cooling type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white shadow-lg rounded-md">
+                  {coolingTypes.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className={formLabel}>Loading Assistance</label>
+              <Select
+                value={formData.loadingAssistance}
+                onValueChange={(v) => updateField("loadingAssistance", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Yes / No" />
+                </SelectTrigger>
+                <SelectContent className="bg-white shadow-lg rounded-md">
+                  {loadingOptions.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="additionalNotes" className={formLabel}>
+                Additional Notes (Optional)
+              </label>
+              <Input
+                id="additionalNotes"
+                value={formData.additionalNotes}
+                onChange={(e) =>
+                  updateField("additionalNotes", e.target.value)
+                }
+              />
+            </div>
+            <div className="flex gap-4">
+              <Button onClick={prevStep} variant="outline">
+                Back
+              </Button>
+              <Button onClick={nextStep} className="w-full">
+                Next
+              </Button>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <h3 className="text-xl font-bold text-headings">
+              Final Logistics
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={formLabel}>Weight (kg)</label>
+                <Input
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) => updateField("weight", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className={formLabel}>Goods Value (INR)</label>
+                <Input
+                  type="number"
+                  value={formData.goodsValue}
+                  onChange={(e) => updateField("goodsValue", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className={formLabel}>Length (ft)</label>
+                <Input
+                  type="number"
+                  value={formData.length}
+                  onChange={(e) => updateField("length", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className={formLabel}>Width (ft)</label>
+                <Input
+                  type="number"
+                  value={formData.width}
+                  onChange={(e) => updateField("width", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className={formLabel}>Height (ft)</label>
+                <Input
+                  type="number"
+                  value={formData.height}
+                  onChange={(e) => updateField("height", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className={formLabel}>Est. Delivery Date</label>
+                <Input
+                  type="date"
+                  value={formData.estimatedDeliveryDate}
+                  onChange={(e) =>
+                    updateField("estimatedDeliveryDate", e.target.value)
+                  }
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className={formLabel}>Shipment Type</label>
+              <Select
+                value={formData.shipmentType}
+                onValueChange={(v) => updateField("shipmentType", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select shipment type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white shadow-lg rounded-md">
+                  {shipmentTypes.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="ebayBill" className={formLabel}>
+                Upload eBay Bill (Optional)
+              </label>
+              <label
+                htmlFor="ebayBill"
+                className="flex items-center justify-center w-full p-4 border-2 border-dashed border-black/20 rounded-lg cursor-pointer hover:border-interactive"
+              >
+                <Upload size={20} className="mr-2 text-text/60" />
+                <span className="text-sm text-text/80">
+                  {formData.ebayBill
+                    ? formData.ebayBill.name
+                    : "Click to upload a file"}
+                </span>
+              </label>
+              <Input
+                id="ebayBill"
+                type="file"
+                className="hidden"
+                onChange={(e) => updateField("ebayBill", e.target.files[0])}
+              />
+            </div>
+            <div className="flex gap-4">
+              <Button onClick={prevStep} variant="outline">
+                Back
+              </Button>
+              <Button
+                type="submit"
+                variant="cta"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? "Submitting..." : "Create Shipment"}
+              </Button>
+            </div>
+          </form>
+        );
+
+      default:
+        return null;
     }
   };
 
   return (
-    <div className="pt-20 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Shipment Registration
-            </h1>
-          </div>
-          <p className="text-center text-gray-600">Register your shipment with detailed information</p>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-extrabold text-headings">
+            Create a New Shipment
+          </h1>
+          <p className="text-text/70 mt-2">
+            Follow the steps to complete your shipment request.
+          </p>
         </div>
-
-        {/* Form */}
-        <form action="submit" onSubmit={handleSubmit} className="space-y-8">
-            <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
-          {/* Company Header Inside Form */}
-          <div className="border-b pb-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">LogiTech Solutions</h2>
-                <p className="text-gray-600">Your Trusted Logistics Partner</p>
-              </div>
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center">
-                <Package className="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          {/* Location Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                <MapPin className="w-4 h-4 mr-2 text-blue-600" />
-                Pick Up Location *
-              </label>
-              <input
-                type="text"
-                name="pickupLocation"
-                value={formData.pickupLocation}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter pickup address"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                <MapPin className="w-4 h-4 mr-2 text-red-500" />
-                Drop Location *
-              </label>
-              <input
-                type="text"
-                name="dropLocation"
-                value={formData.dropLocation}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter delivery address"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Material Type and Weight */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                <Package className="w-4 h-4 mr-2 text-green-600" />
-                Material Type *
-              </label>
-              <select
-                name="materialType"
-                value={formData.materialType}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                required
-              >
-                <option value="">Select material type</option>
-                {materialTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-              {formData.materialType === 'Others' && (
-                <input
-                  type="text"
-                  name="customMaterialType"
-                  value={formData.customMaterialType}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-2"
-                  placeholder="Please specify the material type"
-                  required
-                />
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                <Scale className="w-4 h-4 mr-2 text-purple-600" />
-                Weight (kg) *
-              </label>
-              <input
-                type="number"
-                name="weight"
-                value={formData.weight}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter weight in kg"
-                min="0"
-                step="0.1"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Dimensions */}
-          <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-gray-700">
-              <Ruler className="w-4 h-4 mr-2 text-orange-600" />
-              Dimensions (feet) *
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input
-                type="number"
-                name="length"
-                value={formData.length}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Length (ft)"
-                min="0"
-                step="0.1"
-                required
-              />
-              <input
-                type="number"
-                name="width"
-                value={formData.width}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Width (ft)"
-                min="0"
-                step="0.1"
-                required
-              />
-              <input
-                type="number"
-                name="height"
-                value={formData.height}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Height (ft)"
-                min="0"
-                step="0.1"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Delivery Date and Transport Mode */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                <Calendar className="w-4 h-4 mr-2 text-blue-600" />
-                Estimated Delivery Date *
-              </label>
-              <input
-                type="date"
-                name="estimatedDelivery"
-                value={formData.estimatedDelivery}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="flex items-center text-sm font-medium text-gray-700">
-                <Truck className="w-4 h-4 mr-2 text-indigo-600" />
-                Mode of Transportation
-              </label>
-              <select
-                name="transportMode"
-                value={formData.transportMode}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              >
-                <option value="">Select transport mode</option>
-                {transportModes.map((mode) => (
-                  <option key={mode} value={mode}>{mode}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* PTL/FTL and Material Value */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Shipment Type *
-              </label>
-              <div className="flex space-x-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="shipmentType"
-                    value="PTL"
-                    checked={formData.shipmentType === 'PTL'}
-                    onChange={handleInputChange}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
-                    required
-                  />
-                  PTL (Part Truck Load)
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="shipmentType"
-                    value="FTL"
-                    checked={formData.shipmentType === 'FTL'}
-                    onChange={handleInputChange}
-                    className="mr-2 text-blue-600 focus:ring-blue-500"
-                    required
-                  />
-                  FTL (Full Truck Load)
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Value of Material (₹) *
-              </label>
-              <input
-                type="number"
-                name="materialValue"
-                value={formData.materialValue}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Enter material value in rupees"
-                min="0"
-                step="0.01"
-                required
-              />
-            </div>
-          </div>
-
-          {/* File Upload */}
-          <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-gray-700">
-              <Upload className="w-4 h-4 mr-2 text-gray-600" />
-              eBay Bill (Optional)
-            </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
-              <input
-                type="file"
-                onChange={handleFileUpload}
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                className="hidden"
-                id="file-upload"
-              />
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600">
-                  {formData.ebayBill ? formData.ebayBill.name : 'Click to upload or drag and drop'}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  PDF, JPG, PNG, DOC up to 10MB
-                </p>
-              </label>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-6">
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition-all transform hover:scale-105"
+        <Stepper currentStep={step} />
+        <div className="bg-white rounded-lg p-8 border border-black/5 shadow-sm">
+          {error && (
+            <p className="mb-4 text-sm text-center text-red-600 bg-red-100 p-3 rounded-lg">
+              {error}
+            </p>
+          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              variants={formVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.4, ease: "easeInOut" }}
             >
-              Submit
-            </button>
-          </div>
+              {renderStep()}
+            </motion.div>
+          </AnimatePresence>
         </div>
-        </form>
       </div>
     </div>
   );
-};
-
-export default ShipmentRegistration;
+}

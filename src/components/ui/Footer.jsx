@@ -1,126 +1,143 @@
-import React, { useState } from 'react';
-import { Twitter, Linkedin, Instagram, ArrowUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Twitter, Linkedin, Instagram, ArrowUp, Send } from 'lucide-react';
+import { Input } from './Input'; // Assuming you have these
+import { Button } from './Button'; // Assuming you have these
+import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '../../assets/LOGO.png'; // Adjust the path as necessary
 
+// --- Data for easy management ---
+const footerLinks = [
+    {
+        title: 'Company',
+        links: [
+            { label: 'About Us', href: '/about-us' },
+            { label: 'Careers', href: '/careers' },
+            { label: 'News', href: '/news' },
+        ],
+    },
+    {
+        title: 'Support',
+        links: [
+            { label: 'Contact Us', href: '/contact' },
+            { label: 'FAQ', href: '/faq' },
+            { label: 'Get Started', href: '/sign-up' },
+        ],
+    },
+    {
+        title: 'Legal',
+        links: [
+            { label: 'Privacy Policy', href: '/privacy' },
+            { label: 'Terms of Service', href: '/terms' },
+            { label: 'Cookie Policy', href: '/cookies' },
+        ],
+    },
+];
+
+const socialLinks = [
+    { icon: <Twitter className="h-5 w-5" />, href: '#' },
+    { icon: <Linkedin className="h-5 w-5" />, href: '#' },
+    { icon: <Instagram className="h-5 w-5" />, href: '#' },
+];
+
+
+// --- Main Footer Component ---
 export default function Footer() {
-  const [email,setEmail] = useState('');
-  const [status,setStatus] = useState(null);
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState({ message: '', type: '' });
+    const [showScroll, setShowScroll] = useState(false);
 
-  const scrollToTop = () =>{
-    window.scrollTo({
-      top:0,
-      behavior:'smooth',
-    });
-  };
+    // --- Logic for showing/hiding the scroll-to-top button ---
+    useEffect(() => {
+        const checkScrollTop = () => {
+            if (!showScroll && window.pageYOffset > 400) {
+                setShowScroll(true);
+            } else if (showScroll && window.pageYOffset <= 400) {
+                setShowScroll(false);
+            }
+        };
+        window.addEventListener('scroll', checkScrollTop);
+        return () => window.removeEventListener('scroll', checkScrollTop);
+    }, [showScroll]);
 
-  const handleSubscribe = async() =>{
-    if(!email){
-      setStatus('please enter a valid email');
-      return ;
-    }
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-    try{
-      const res = await fetch('https://your-api-url.com/api/subscribe',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({email})
-      } ) ;
+    const handleSubscribe = async (e) => {
+        e.preventDefault();
+        if (!email || !email.includes('@')) {
+            setStatus({ message: 'Please enter a valid email.', type: 'error' });
+            return;
+        }
 
-      if(res.ok){
-        setStatus('subscription successful');
-        setEmail('');
-      }
-      else{
-        setStatus('subscription failed, please try again');
-      }
-    }
-    catch{
-        setStatus('an error occurred');
-      }
-  };
+        // Replace with your actual API endpoint
+        // Simulating API call for now
+        setStatus({ message: 'Subscribing...', type: 'loading' });
+        setTimeout(() => {
+            setStatus({ message: "Thank you for subscribing!", type: 'success' });
+            setEmail('');
+            setTimeout(() => setStatus({ message: '', type: '' }), 3000);
+        }, 1500);
+    };
 
-  return (
-    <footer className="w-full bg-[#f9f7f8] text-[#1e1b18] pt-10 pb-6 px-6 md:px-20">
-      {/* Top Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
-        
-        {/* Get in Touch */}
-        <div>
-          <h4 className="font-bold text-lg mb-3">GET IN TOUCH</h4>
-          <div className="space-y-3">
-            <a href="mailto:contact@logixjunction.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#1DA1F2]"> contact@logixjunction.com </a>
-          </div>
-        </div>
+    return (
+        <>
+            <footer className="w-full bg-headings text-background/70 pt-16 pb-8 px-6 md:px-16">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
+                        {/* Logo & Tagline Section */}
+                        <div className="lg:col-span-2">
+                            <img src={Logo} alt="LogiXjunction Logo" className="h-16 w-auto mb-4" />
+                            <p className="max-w-xs">India's smartest digital freight network, built for the future.</p>
+                        </div>
+                        {/* Links Sections */}
+                        {footerLinks.map((section) => (
+                            <div key={section.title}>
+                                <h4 className="font-bold text-white mb-4">{section.title}</h4>
+                                <ul className="space-y-3">
+                                    {section.links.map((link) => (
+                                        <li key={link.label}>
+                                            <a href={link.href} className="hover:text-interactive transition-colors">{link.label}</a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
 
-        {/* Follow Us */}
-        <div>
-          <h4 className="font-bold text-lg mb-3">FOLLOW US</h4>
-          <div className="space-y-3">
-            <a href="#" className="flex items-center space-x-2 hover:text-[#1DA1F2]">
-              <Twitter className="h-5 w-5" />
-            </a>
-            <a href="#" className="flex items-center space-x-2 hover:text-[#0077B5]">
-              <Linkedin className="h-5 w-5" />
-            </a>
-            <a href="#" className="flex items-center space-x-2 hover:text-[#e60076]">
-              <Instagram className="h-5 w-5" />
-            </a>
-          </div>
-        </div>
+                    <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                        {/* Copyright */}
+                        <p className="text-sm text-background/50 order-2 md:order-1">
+                            © {new Date().getFullYear()} LogiXjunction. All rights reserved.
+                        </p>
+                        {/* Social Links */}
+                        <div className="flex gap-4 order-1 md:order-2">
+                            {socialLinks.map((social, index) => (
+                                <a key={index} href={social.href} className="text-background/70 hover:text-white transition-colors">
+                                    {social.icon}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </footer>
 
-        {/* Our Story */}
-        <div>
-          <h4 className="font-bold text-lg mb-3">OUR STORY</h4>
-          <a href="about-us" className="hover:text-[#1DA1F2]">About Us</a>
-        </div>
-
-        {/* Insights */}
-        <div>
-          <h4 className="font-bold text-lg mb-3">INSIGHTS</h4>
-          <a href="/join-us" className="hover:text-[#1DA1F2]">Careers</a>
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-        
-        {/* Legal Info */}
-        <div className="text-sm text-gray-600">
-          <p>©2025 LxJ</p>
-          <div className="flex flex-wrap gap-2 mt-2">
-            <a href="#" className="hover:text-[#1e1b18]">Privacy Policy</a>
-            <span>·</span>
-            <a href="#" className="hover:text-[#1e1b18]">Terms</a>
-            <span>·</span>
-            <a href="# " className="hover:text-[#1e1b18]">Cookies</a>
-          </div>
-        </div>
-
-        {/* Newsletter */}
-        <div>
-          <h5 className="text-lg font-bold mb-3">STAY UPDATED</h5>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-            <input
-              type="email"
-              placeholder="Enter email ID"
-              className="px-3 py-2 rounded-md border border-gray-300 text-sm w-full sm:w-auto"
-              onChange={(e)=> setEmail(e.target.value)} 
-            />
-            <button className="bg-[#d8315b] hover:bg-[#ff2056] text-white px-4 py-2 rounded-md text-sm" onClick={handleSubscribe}>
-              Subscribe
-            </button>
-          </div>
-          {status && (
-            <div className="mt-2 text-sm text-red-600">{status}</div>
-          )}
-        </div>
-
-        {/* Back to Top */}
-        <div className="flex justify-end md:justify-end md:mt-8">
-          <button onClick={scrollToTop} className="inline-flex items-center px-3 py-2 rounded-xl text-white bg-gradient-to-r from-blue-300 to-indigo-600 shadow hover:from-indigo-600 hover:to-blue-300">
-            <ArrowUp className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </footer>
-  );
+            {/* --- Scroll to Top Button --- */}
+            <AnimatePresence>
+                {showScroll && (
+                    <motion.button
+                        onClick={scrollToTop}
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        transition={{ ease: 'easeInOut', duration: 0.3 }}
+                        className="fixed bottom-6 right-6 bg-interactive text-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg hover:bg-headings transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-interactive"
+                        aria-label="Scroll to top"
+                    >
+                        <ArrowUp className="w-6 h-6" />
+                    </motion.button>
+                )}
+            </AnimatePresence>
+        </>
+    );
 }

@@ -1,23 +1,24 @@
 import { FaTruckMoving, FaMapMarkedAlt, FaRoute, FaGavel } from "react-icons/fa";
 
+// UPDATED: Icons now use the "interactive" theme color directly.
 const features = [
   {
-    icon: <FaTruckMoving className="text-4xl text-lxj-accent" />,
+    icon: <FaTruckMoving className="h-8 w-8 text-interactive" />,
     title: "Digital Freight Marketplace",
     desc: "Post, match & move loads with intelligent logistics algorithms.",
   },
   {
-    icon: <FaMapMarkedAlt className="text-4xl text-lxj-accent" />,
+    icon: <FaMapMarkedAlt className="h-8 w-8 text-interactive" />,
     title: "Fleet Telematics & Tracking",
     desc: "Monitor real-time location, performance, and efficiency of your vehicles.",
   },
   {
-    icon: <FaRoute className="text-4xl text-lxj-accent" />,
+    icon: <FaRoute className="h-8 w-8 text-interactive" />,
     title: "Route Optimization",
     desc: "Minimize fuel costs and delivery times with AI-powered route planning.",
   },
   {
-    icon: <FaGavel className="text-4xl text-lxj-accent" />,
+    icon: <FaGavel className="h-8 w-8 text-interactive" />,
     title: "Transparent Bidding System",
     desc: "Fair, fast, and visible bidding between shippers and transporters.",
   },
@@ -25,25 +26,31 @@ const features = [
 
 export default function KeyFeatures() {
   return (
-    <section id="features" className="snap-start min-h-screen bg-lxj-softWhite py-28 md:py-40 px-6 md:px-12 font-inter">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-lxj-primary mb-4">Key Features</h2>
-        <p className="text-lg text-lxj-alert mb-12">
+    // UPDATED: Simplified section styling for natural page flow.
+    <section id="features" className="bg-background py-20 sm:py-24">
+      <div className="max-w-7xl mx-auto px-6 text-center">
+        {/* UPDATED: Typography uses theme colors for consistency. */}
+        <h2 className="text-4xl md:text-5xl font-extrabold text-headings mb-4">
+          Key Features
+        </h2>
+        <p className="text-lg text-text/70 max-w-2xl mx-auto mb-16">
           Explore our core offerings that make freight smarter, faster, and fairer.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
+        {/* UPDATED: Grid is now more responsive for large screens. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
+            // UPDATED: Card styling is now cleaner and uses a subtle border.
             <div
               key={index}
-              className="bg-white p-6 rounded-2xl shadow-md hover:shadow-lg hover:shadow-zinc-400 border border-zinc-200 transition-all duration-300 transform hover:-translate-y-1"
+              className="bg-white p-6 rounded-lg border border-black/5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-black/10"
             >
-              <div className="flex flex-col items-start space-y-4">
+              <div className="flex flex-col items-start gap-4">
                 {feature.icon}
-                <h3 className="text-xl font-semibold text-lxj-alert">
+                <h3 className="text-xl font-semibold text-headings">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">{feature.desc}</p>
+                <p className="text-text/90">{feature.desc}</p>
               </div>
             </div>
           ))}
