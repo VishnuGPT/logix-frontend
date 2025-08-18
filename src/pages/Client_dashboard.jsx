@@ -1,236 +1,229 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Edit3,
-  Plus,
-  Mail,
-  Phone,
-  MapPin,
-  Send,
-  Package,
-  Truck,
-  PackageCheck,
-  PackageX,
-  Timer,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Menu, X, Plus, BarChart2, FileText, DollarSign, LogOut } from 'lucide-react';
+import ShipmentRequestForm from '@/components/ShipmentRequestForm'; // IMPORT the new form
+import { Button } from '@/components/ui/button'; // Assuming you have a themed Button
 
-// --- SAMPLE DATA (fix for undefined error) ---
-const clientData = {
-  name: "Vishnu Gupta",
-  company: "Logix Pvt Ltd",
-  email: "vishnu@example.com",
-  phone: "+91 9876543210",
-  address: "Delhi, India",
-  avatar: "https://i.pravatar.cc/150?img=12",
-  tags: ["Premium", "Priority", "International"],
+// --- MOCK DATA (Shipper Only) ---
+const shipperData = {
+  user: { name: 'Priya Sharma', company: 'Indus Enterprises' },
+  requests: [
+    { id: 'SR001', date: '16 Aug, 2025', route: 'Vadodara → Indore', goods: 'Chemical Products', status: 'pending' },
+    { id: 'SR002', date: '15 Aug, 2025', route: 'Aurangabad → Coimbatore', goods: 'Automotive Parts', status: 'approved' },
+    { id: 'SR003', date: '14 Aug, 2025', route: 'Gurugram → Chandigarh', goods: 'IT Equipment', status: 'approved' },
+  ],
+  status: [
+    { id: 'SH001', route: 'Mumbai → Delhi', progress: 65, delivery: '20 Aug, 2025', status: 'in-transit' },
+    { id: 'SH004', route: 'Bengaluru → Chennai', progress: 10, delivery: '22 Aug, 2025', status: 'pickup-scheduled' },
+    { id: 'SH005', route: 'Pune → Hyderabad', progress: 95, delivery: '19 Aug, 2025', status: 'out-for-delivery' },
+  ],
+  billing: {
+    summary: { pending: '₹3.5 Lakhs', paid: '₹2.3 Lakhs', overdue: '₹1.8 Lakhs' },
+    invoices: [
+      { id: 'INV001', amount: '₹3.5 Lakhs', status: 'pending', dueDate: '14 Sep, 2025' },
+      { id: 'INV002', amount: '₹2.3 Lakhs', status: 'paid', dueDate: '09 Sep, 2025' },
+      { id: 'INV003', amount: '₹1.8 Lakhs', status: 'overdue', dueDate: '04 Sep, 2025' },
+    ],
+  },
 };
 
-const shipmentsByStatus = {
-  ongoing: [
-    { id: 1, description: "Shipment to Mumbai", trackingNumber: "LXJ123", destination: "Mumbai", estimatedDelivery: "2025-08-20" },
-  ],
-  completed: [
-    { id: 2, description: "Shipment to Bangalore", trackingNumber: "LXJ456", destination: "Bangalore", date: "2025-08-10" },
-  ],
-  upcoming: [
-    { id: 3, description: "Shipment to Hyderabad", trackingNumber: "LXJ789", destination: "Hyderabad", date: "2025-08-25" },
-  ],
-  rejected: [
-    { id: 4, description: "Shipment to Chennai", trackingNumber: "LXJ101", destination: "Chennai", date: "2025-08-05" },
-  ],
+// --- HELPER COMPONENTS ---
+
+const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => {
+    const navItems = [
+        { name: 'Profile', icon: <User size={18} /> },
+        { name: 'Requests', icon: <Plus size={18} /> },
+        { name: 'Status', icon: <BarChart2 size={18} /> },
+        { name: 'Billing', icon: <FileText size={18} /> },
+    ];
+
+    return (
+        <>
+            <div className={`fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
+            <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-black/10 flex flex-col z-40 transform transition-transform md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-4 border-b border-black/10">
+                    <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-10 w-auto" />
+                </div>
+                <nav className="flex-1 p-4 space-y-2">
+                    {navItems.map(item => (
+                        <button key={item.name} onClick={() => { setActivePage(item.name); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-left transition-colors ${activePage === item.name ? 'bg-interactive/10 text-interactive' : 'text-text/80 hover:bg-black/5'}`}>
+                            {item.icon}
+                            <span>{item.name}</span>
+                        </button>
+                    ))}
+                </nav>
+                <div className="p-4 border-t border-black/10">
+                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-text/80 hover:bg-black/5">
+                        <LogOut size={18} />
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </aside>
+        </>
+    );
 };
 
-// --- COMPONENTS ---
-const DashboardHeader = () => (
-  <div className="flex items-center justify-between mb-8">
-    <h1 className="text-3xl font-extrabold text-headings">Dashboard</h1>
-    <Button asChild variant="cta">
-      <Link to="/shipment-registration">
-        <Send className="w-4 h-4 mr-2" />
-        Request Shipment
-      </Link>
-    </Button>
-  </div>
+
+const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick }) => (
+  <header className="flex items-center justify-between mb-8">
+    <div className="flex items-center gap-4">
+      <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 -ml-2"><Menu className="h-6 w-6 text-text" /></button>
+      <h1 className="text-2xl font-bold text-headings">{activePage}</h1>
+    </div>
+    {/* IMPROVEMENT: The "New Request" button now lives consistently in the header */}
+    {activePage === 'Requests' && (
+      <Button onClick={onNewRequestClick}><Plus size={16} className="mr-2" />New Request</Button>
+    )}
+  </header>
 );
 
-const ClientSidebar = ({ client }) => {
-  if (!client) return null;
-
-  return (
-    <aside className="w-full md:w-80 flex-shrink-0">
-      <div className="bg-white rounded-lg border border-black/5 p-6 space-y-6">
-        <div className="text-center">
-          <img
-            src={client.avatar}
-            alt={client.name}
-            className="w-20 h-20 mx-auto rounded-full border-4 border-white shadow-md -mt-16"
-          />
-          <h2 className="text-xl font-bold text-headings mt-4">{client.name}</h2>
-          <p className="text-sm text-text/60">{client.company}</p>
-        </div>
-        <div className="space-y-2">
-          <InfoItem icon={<Mail size={14} />} text={client.email} />
-          <InfoItem icon={<Phone size={14} />} text={client.phone} />
-          <InfoItem icon={<MapPin size={14} />} text={client.address} />
-        </div>
-        <div>
-          <h4 className="text-sm font-semibold text-headings mb-2">Tags</h4>
-          <div className="flex flex-wrap gap-2">
-            {client.tags &&
-              client.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2.5 py-1 text-xs font-medium bg-accent-highlight/40 text-text rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-};
-
-const InfoItem = ({ icon, text }) => (
-  <div className="flex items-start gap-3 text-sm">
-    <span className="text-interactive mt-0.5">{icon}</span>
-    <span className="text-text/80">{text}</span>
-  </div>
-);
-
-const MainContent = ({ shipments }) => {
-  const [activeTab, setActiveTab] = useState("overview");
-  const tabs = ["overview", "shipments", "documents", "billing"];
-
-  return (
-    <div className="flex-1 bg-white rounded-lg border border-black/5">
-      <div className="border-b border-black/5 flex">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-6 py-3 text-sm font-semibold capitalize transition-colors focus:outline-none ${
-              activeTab === tab
-                ? "text-interactive border-b-2 border-interactive"
-                : "text-text/60 hover:text-headings"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-      <div className="p-6">
-        {activeTab === "overview" && <OverviewTab shipments={shipments} />}
-        {activeTab === "shipments" && <ShipmentsTab shipments={shipments} />}
-      </div>
-    </div>
-  );
-};
-
-// --- Tabs ---
-const OverviewTab = ({ shipments }) => (
-  <div className="space-y-8">
-    <div>
-      <h3 className="text-lg font-bold text-headings mb-4">Summary</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Ongoing" value={shipments.ongoing.length} icon={<Truck />} color="interactive" />
-        <StatCard title="Completed" value={shipments.completed.length} icon={<PackageCheck />} color="green" />
-        <StatCard title="Upcoming" value={shipments.upcoming.length} icon={<Timer />} color="yellow" />
-        <StatCard title="Rejected" value={shipments.rejected.length} icon={<PackageX />} color="red" />
-      </div>
-    </div>
-    <div>
-      <h3 className="text-lg font-bold text-headings mb-4">Recent Shipments</h3>
-      <div className="space-y-3">
-        {Object.values(shipments).flat().slice(0, 3).map((shipment) => (
-          <ShipmentListItem key={shipment.id} shipment={shipment} />
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-const ShipmentsTab = ({ shipments }) => {
-  const [activeStatus, setActiveStatus] = useState("ongoing");
-  const shipmentTabs = [
-    { id: "ongoing", label: "Ongoing" },
-    { id: "completed", label: "Completed" },
-    { id: "upcoming", label: "Upcoming" },
-    { id: "rejected", label: "Rejected" },
-  ];
-
-  return (
-    <div>
-      <div className="flex gap-2 mb-6">
-        {shipmentTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveStatus(tab.id)}
-            className={`px-3 py-1.5 text-sm font-semibold rounded-full transition-colors ${
-              activeStatus === tab.id
-                ? "bg-headings text-white"
-                : "bg-background text-text/80 hover:bg-black/10"
-            }`}
-          >
-            {tab.label} ({shipments[tab.id].length})
-          </button>
-        ))}
-      </div>
-      <div className="space-y-4">
-        {shipments[activeStatus].map((shipment) => (
-          <ShipmentListItem key={shipment.id} shipment={shipment} status={activeStatus} />
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const StatCard = ({ title, value, icon, color }) => {
   const colors = {
-    interactive: "bg-interactive/10 text-interactive",
-    green: "bg-green-500/10 text-green-600",
-    yellow: "bg-yellow-500/10 text-yellow-600",
-    red: "bg-red-500/10 text-red-600",
+    interactive: 'bg-interactive/10 text-interactive',
+    green: 'bg-green-500/10 text-green-600',
+    red: 'bg-red-500/10 text-red-600',
   };
-
   return (
-    <div className="bg-background border border-black/5 p-4 rounded-lg">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colors[color]}`}>
-        {icon}
-      </div>
+    <div className="bg-white border border-black/5 p-4 rounded-lg">
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colors[color]}`}>{icon}</div>
       <p className="text-2xl font-bold text-headings mt-4">{value}</p>
       <p className="text-sm text-text/60">{title}</p>
     </div>
   );
 };
 
-const ShipmentListItem = ({ shipment }) => (
-  <div className="border border-black/5 rounded-lg p-4 flex items-center justify-between hover:bg-background transition-colors">
-    <div>
-      <p className="font-semibold text-headings">{shipment.description}</p>
-      <p className="text-sm text-text/60">Tracking: {shipment.trackingNumber}</p>
+const StatusBadge = ({ status }) => {
+  const styles = {
+    pending: 'bg-yellow-500/10 text-yellow-600',
+    approved: 'bg-interactive/10 text-interactive',
+    'in-transit': 'bg-blue-500/10 text-blue-600',
+    'pickup-scheduled': 'bg-purple-500/10 text-purple-600',
+    'out-for-delivery': 'bg-indigo-500/10 text-indigo-600',
+    paid: 'bg-green-500/10 text-green-600',
+    overdue: 'bg-red-500/10 text-red-600',
+  };
+  return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${styles[status] || 'bg-black/10 text-text'}`}>{status.replace('-', ' ')}</span>;
+};
+
+
+// --- PAGE CONTENT COMPONENTS ---
+
+
+const ShipmentStatusPage = ({ statuses }) => (
+  <div className="space-y-4">
+    {statuses.map(item => (
+      <div key={item.id} className="bg-white border border-black/5 rounded-lg p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+          <p className="font-semibold text-headings">{item.route}</p>
+          <StatusBadge status={item.status} />
+        </div>
+        <div className="w-full bg-black/10 rounded-full h-2"><div className="bg-interactive h-2 rounded-full" style={{ width: `${item.progress}%` }}></div></div>
+        <div className="flex justify-between text-sm text-text/70 mt-2">
+          <span>Progress: {item.progress}%</span>
+          <span>Est. Delivery: {item.delivery}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const BillingPage = ({ billing }) => (
+  <div className="space-y-8">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <StatCard title="Pending" value={billing.summary.pending} icon={<DollarSign />} color="interactive" />
+      <StatCard title="Overdue" value={billing.summary.overdue} icon={<DollarSign />} color="red" />
+      <StatCard title="Paid" value={billing.summary.paid} icon={<DollarSign />} color="green" />
     </div>
-    <div className="text-sm text-text/80 text-right">
-      <p>{shipment.destination}</p>
-      <p className="text-xs text-text/60">{shipment.estimatedDelivery || shipment.date}</p>
+    <div>
+      <h3 className="text-lg font-bold text-headings mb-4">Invoices</h3>
+      <div className="space-y-3">
+        {billing.invoices.map(inv => (
+          <div key={inv.id} className="bg-white border border-black/5 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="font-semibold text-headings">Invoice {inv.id}</p>
+              <p className="text-sm text-text/70">Due: {inv.dueDate}</p>
+            </div>
+            <div className="flex items-center gap-4 self-end sm:self-center">
+              <span className="text-sm font-medium text-text">{inv.amount}</span>
+              <StatusBadge status={inv.status} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
 
-// --- MAIN ---
-export default function ClientDashboard() {
-  return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <DashboardHeader />
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          <ClientSidebar client={clientData} />
-          <MainContent shipments={shipmentsByStatus} />
-        </div>
-      </div>
+const ShipmentRequestsPage = ({ requests, onNewRequestClick }) => (
+  <div>
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-xl font-bold text-headings">Shipment Requests</h2>
     </div>
-  );
+    <div className="space-y-4">
+      {requests.map(req => (
+        <motion.div key={req.id} className="bg-white border border-black/5 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" whileHover={{ scale: 1.02 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+          <div>
+            <p className="font-semibold text-headings">{req.route}</p>
+            <p className="text-sm text-text/70">{req.goods} - {req.weight}</p>
+          </div>
+          <div className="flex items-center gap-4 self-end sm:self-center">
+            <span className="text-sm font-medium text-text">{req.cost}</span>
+            <StatusBadge status={req.status} />
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+);
+
+
+// --- MAIN DASHBOARD EXPORT (UPDATED) ---
+export default function ShipperDashboard() {
+    const [activeView, setActiveView] = useState('Requests');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const renderContent = () => {
+        switch (activeView) {
+            case 'Requests':
+                return <ShipmentRequestsPage requests={shipperData.requests} />;
+            case 'Status':
+                return <ShipmentStatusPage statuses={shipperData.status} />;
+            case 'Billing':
+                return <BillingPage billing={shipperData.billing} />;
+            case 'New Request':
+                return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
+            // Add a case for Profile if you want to build that page
+            case 'Profile':
+                return <div>Profile Page Content</div>;
+            default:
+                return <ShipmentRequestsPage requests={shipperData.requests} />;
+        }
+    };
+
+    return (
+        <div className="relative md:flex bg-background font-sans min-h-screen">
+            <Sidebar activePage={activeView} setActivePage={setActiveView} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+            <main className="flex-1 p-4 sm:p-6 lg:p-8">
+                {/* FIX: The header is now rendered here, providing the toggle button */}
+                <DashboardHeader 
+                    activePage={activeView === 'New Request' ? 'Create New Shipment Request' : activeView} 
+                    setSidebarOpen={setSidebarOpen}
+                    onNewRequestClick={() => setActiveView('New Request')}
+                />
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeView}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {renderContent()}
+                    </motion.div>
+                </AnimatePresence>
+            </main>
+        </div>
+    );
 }

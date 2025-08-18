@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
 
-const OtpInput = ({ onVerify }) => {
+const OtpInput = ({ onVerify, onResend, isLoading }) => {
   const [otp, setOtp] = useState(new Array(6).fill(''));
   const [timer, setTimer] = useState(60);
 
@@ -18,6 +18,7 @@ const OtpInput = ({ onVerify }) => {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
+
       // Auto-focus to next
       if (value && index < otp.length - 1) {
         document.getElementById(`otp-${index + 1}`).focus();
@@ -28,8 +29,7 @@ const OtpInput = ({ onVerify }) => {
   const handleSubmit = () => {
     const enteredOtp = otp.join('');
     if (enteredOtp.length === 6) {
-      // Placeholder: replace with actual OTP verification logic
-      onVerify();
+      onVerify(enteredOtp);
     } else {
       alert('Please enter a valid 6-digit OTP');
     }
@@ -38,8 +38,7 @@ const OtpInput = ({ onVerify }) => {
   const handleResend = () => {
     setOtp(new Array(6).fill(''));
     setTimer(60);
-    alert('OTP resent (placeholder logic)');
-    // Add resend OTP logic here
+    if (onResend) onResend();
   };
 
   return (
@@ -62,9 +61,10 @@ const OtpInput = ({ onVerify }) => {
       <div className="flex justify-center items-center gap-4">
         <Button
           onClick={handleSubmit}
+          disabled={isLoading}
           className="bg-[#0a2463] hover:bg-[#3e92cc] text-white px-6"
         >
-          Verify OTP
+          {isLoading ? 'Verifying...' : 'Verify OTP'}
         </Button>
         <div className="text-sm text-gray-600">
           {timer > 0 ? (

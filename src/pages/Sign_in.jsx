@@ -32,8 +32,8 @@ export default function SignInPage() {
         };
 
         const endpoint = userType === 'Transporter'
-            ? 'https://bakcendrepo-1.onrender.com/api/transporters/login'
-            : 'https://bakcendrepo-1.onrender.com/api/shipper/login';
+            ? `${import.meta.env.VITE_API_URL}/api/transporters/login`
+            : `${import.meta.env.VITE_API_URL}/api/shipper/login`;
 
         try {
             const res = await fetch(endpoint, {

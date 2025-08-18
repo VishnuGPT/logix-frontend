@@ -60,7 +60,7 @@ function App() {
         <Route element={<FullPageLayout />}>
           {/* Auth Routes */}
           <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/signup-otp" element={<SignupFormPage />} />
+          <Route path="/sign-up" element={<SignupFormPage />} />
 
           {/* Registration Routes */}
           <Route path="/carrier-registration" element={<CarrierRegistration />} />

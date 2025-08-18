@@ -41,7 +41,7 @@ export default function Navbar() {
                         </Button>
                         {/* FIXED: Button now correctly uses Link component for navigation */}
                         <Button asChild variant="cta">
-                            <Link to="/signup-otp">Get Started</Link>
+                            <Link to="/sign-up">Get Started</Link>
                         </Button>
                     </div>
 
