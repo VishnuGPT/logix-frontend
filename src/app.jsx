@@ -13,14 +13,11 @@ import SignInPage from './pages/Sign_in';
 import SignupFormPage from './pages/Signup_otp';
 
 import CarrierRegistration from './pages/signup/transporter_registration';
-import ShipperRegistration from './pages/signup/shipper_registration';
 
 import TransporterDashboard from './pages/TraFix';
 import ClientDashboard from './pages/Client_dashboard';
-import Shipments from './pages/dashboard/Shipments';
 import Consignment from './pages/dashboard/Consignment';
 import AvailableTransporters from './pages/Transporter_list';
-import ShipmentRegistration from './pages/Shipment_registration';
 import VehicleRegistration from './pages/Vehicle_registration';
 import DriverRegistration from './pages/Driver_registration';
 
@@ -64,15 +61,12 @@ function App() {
 
           {/* Registration Routes */}
           <Route path="/carrier-registration" element={<CarrierRegistration />} />
-          <Route path="/shipper-registration" element={<ShipperRegistration />} />
           <Route path="/vehicle-registration" element={<VehicleRegistration />} />
           <Route path="/driver-registration" element={<DriverRegistration />} />
-          <Route path="/shipment-registration" element={<ShipmentRegistration />} />
 
           {/* Dashboard Routes */}
           <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
           <Route path="/client-dashboard" element={<ClientDashboard />} />
-          <Route path="/shipments" element={<Shipments />} />
           <Route path="/consignment" element={<Consignment />} />
           <Route path="/available-transporter" element={<AvailableTransporters />} />
         </Route>

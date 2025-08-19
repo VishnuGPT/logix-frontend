@@ -92,8 +92,8 @@ button:focus-visible {
   --color-background: #FFFAFF;
   --color-text: #1e1b18;
   --color-headings: #0a2463;
-  --color-interactive: #3e92cc;
-  --color-accent-cta: #d8315b;
+  --color-interactive: #3e92cc; 
+  --color-accent-cta: #d8315b;   
   --color-accent-highlight: #EEE8A9;
 }
 
@@ -126,17 +126,14 @@ body {
   background-clip: content-box;
 }
 
-/* The handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #0a2463; /* Your theme's dark 'headings' blue for hover */
+  background-color: #0a2463; 
 }
-/* Add this rule to the bottom of your index.css to set the default font */
 
 body {
   font-family: 'Inter', sans-serif;
 }
 
-/* Add this to the bottom of your index.css file */
 
 @keyframes blob {
   0% { transform: translate(0px, 0px) scale(1); }

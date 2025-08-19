@@ -1,18 +1,44 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Menu, X, Plus, BarChart2, FileText, DollarSign, LogOut } from 'lucide-react';
-import ShipmentRequestForm from '@/components/ShipmentRequestForm'; // IMPORT the new form
-import { Button } from '@/components/ui/button'; // Assuming you have a themed Button
+import { User, Menu, Users, X,Edit , Plus,ChevronDown , BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { useRef } from 'react';
+import {ShipmentRequestForm} from '../components/CreateShipment'
+import {ShipmentRequestsPage} from '../components/ShipmentRequestPage';
 
 // --- MOCK DATA (Shipper Only) ---
 const shipperData = {
   user: { name: 'Priya Sharma', company: 'Indus Enterprises' },
   requests: [
-    { id: 'SR001', date: '16 Aug, 2025', route: 'Vadodara → Indore', goods: 'Chemical Products', status: 'pending' },
-    { id: 'SR002', date: '15 Aug, 2025', route: 'Aurangabad → Coimbatore', goods: 'Automotive Parts', status: 'approved' },
-    { id: 'SR003', date: '14 Aug, 2025', route: 'Gurugram → Chandigarh', goods: 'IT Equipment', status: 'approved' },
-  ],
+  {
+    id: 1,
+    pickupAddressLine2: "Vadodara",
+    dropAddressLine2: "Indore",
+    pickupAddressLine1: "Sayajigunj",
+    pickupState: "Uttar Pradesh",
+    pickupPincode: "390001",
+    dropAddressLine1: "Rajendra Nagar",
+    dropState: "Madhya Pradesh",
+    dropPincode: "452001",
+    expectedPickupDate: "2025-08-16",
+    expectedDeliveryDate: "2025-08-20",
+    materialType: "Fragile Items",
+    weightKg: 1200,
+    lengthFt: 18,
+    widthFt: 7,
+    heightFt: 6,
+    truckSize: "19",
+    bodyType: "Closed",
+    shipmentType: "FTL",
+    manpower: "no",
+    transportMode: "Road Transport",
+    coolingType: "Ambient temperature/Non-Refrigerated",
+    materialValue: 500000,
+    additionalNotes: "Handle with extreme care. Flammable.",
+    status: "REQUESTED"
+  }
+],
   status: [
     { id: 'SH001', route: 'Mumbai → Delhi', progress: 65, delivery: '20 Aug, 2025', status: 'in-transit' },
     { id: 'SH004', route: 'Bengaluru → Chennai', progress: 10, delivery: '22 Aug, 2025', status: 'pickup-scheduled' },
@@ -28,42 +54,41 @@ const shipperData = {
   },
 };
 
-// --- HELPER COMPONENTS ---
+// --- HELPER & DASHBOARD PAGE COMPONENTS ---
 
 const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => {
-    const navItems = [
-        { name: 'Profile', icon: <User size={18} /> },
-        { name: 'Requests', icon: <Plus size={18} /> },
-        { name: 'Status', icon: <BarChart2 size={18} /> },
-        { name: 'Billing', icon: <FileText size={18} /> },
-    ];
+  const navItems = [
+    { name: 'Profile', icon: <User size={18} /> },
+    { name: 'Requests', icon: <Plus size={18} /> },
+    { name: 'Status', icon: <BarChart2 size={18} /> },
+    { name: 'Billing', icon: <FileText size={18} /> },
+  ];
 
-    return (
-        <>
-            <div className={`fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
-            <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-black/10 flex flex-col z-40 transform transition-transform md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="p-4 border-b border-black/10">
-                    <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-10 w-auto" />
-                </div>
-                <nav className="flex-1 p-4 space-y-2">
-                    {navItems.map(item => (
-                        <button key={item.name} onClick={() => { setActivePage(item.name); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-left transition-colors ${activePage === item.name ? 'bg-interactive/10 text-interactive' : 'text-text/80 hover:bg-black/5'}`}>
-                            {item.icon}
-                            <span>{item.name}</span>
-                        </button>
-                    ))}
-                </nav>
-                <div className="p-4 border-t border-black/10">
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-text/80 hover:bg-black/5">
-                        <LogOut size={18} />
-                        <span>Logout</span>
-                    </button>
-                </div>
-            </aside>
-        </>
-    );
+  return (
+    <>
+      <div className={`fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
+      <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-black/10 flex flex-col z-40 transform transition-transform md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-4 border-b border-black/10">
+          <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-10 w-auto" />
+        </div>
+        <nav className="flex-1 p-4 space-y-2">
+          {navItems.map(item => (
+            <button key={item.name} onClick={() => { setActivePage(item.name); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-left transition-colors ${activePage === item.name ? 'bg-interactive/10 text-interactive' : 'text-text/80 hover:bg-black/5'}`}>
+              {item.icon}
+              <span>{item.name}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-black/10">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-text/80 hover:bg-black/5">
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
+  );
 };
-
 
 const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick }) => (
   <header className="flex items-center justify-between mb-8">
@@ -71,12 +96,12 @@ const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick }) => (
       <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 -ml-2"><Menu className="h-6 w-6 text-text" /></button>
       <h1 className="text-2xl font-bold text-headings">{activePage}</h1>
     </div>
-    {/* IMPROVEMENT: The "New Request" button now lives consistently in the header */}
     {activePage === 'Requests' && (
-      <Button onClick={onNewRequestClick}><Plus size={16} className="mr-2" />New Request</Button>
+      <Button onClick={onNewRequestClick}><Plus size={16} className="mr-2 hover:cursor-pointer" />New Request</Button>
     )}
   </header>
 );
+
 
 
 const StatCard = ({ title, value, icon, color }) => {
@@ -156,74 +181,59 @@ const BillingPage = ({ billing }) => (
   </div>
 );
 
-const ShipmentRequestsPage = ({ requests, onNewRequestClick }) => (
-  <div>
-    <div className="flex items-center justify-between mb-6">
-      <h2 className="text-xl font-bold text-headings">Shipment Requests</h2>
-    </div>
-    <div className="space-y-4">
-      {requests.map(req => (
-        <motion.div key={req.id} className="bg-white border border-black/5 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" whileHover={{ scale: 1.02 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
-          <div>
-            <p className="font-semibold text-headings">{req.route}</p>
-            <p className="text-sm text-text/70">{req.goods} - {req.weight}</p>
-          </div>
-          <div className="flex items-center gap-4 self-end sm:self-center">
-            <span className="text-sm font-medium text-text">{req.cost}</span>
-            <StatusBadge status={req.status} />
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-);
 
 
-// --- MAIN DASHBOARD EXPORT (UPDATED) ---
+// --- MAIN DASHBOARD EXPORT ---
 export default function ShipperDashboard() {
-    const [activeView, setActiveView] = useState('Requests');
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState('Requests');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const renderContent = () => {
-        switch (activeView) {
-            case 'Requests':
-                return <ShipmentRequestsPage requests={shipperData.requests} />;
-            case 'Status':
-                return <ShipmentStatusPage statuses={shipperData.status} />;
-            case 'Billing':
-                return <BillingPage billing={shipperData.billing} />;
-            case 'New Request':
-                return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
-            // Add a case for Profile if you want to build that page
-            case 'Profile':
-                return <div>Profile Page Content</div>;
-            default:
-                return <ShipmentRequestsPage requests={shipperData.requests} />;
-        }
-    };
+  const renderContent = () => {
+    switch (activeView) {
+      case 'Requests':
+        return <ShipmentRequestsPage requests={shipperData.requests} />;
+      case 'Status':
+        return <ShipmentStatusPage statuses={shipperData.status} />;
+      case 'Billing':
+        return <BillingPage billing={shipperData.billing} />;
+      case 'New Request':
+        return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
+      case 'Profile':
+        return <div>Profile Page Content</div>;
+      case 'Modification Requests':
+        return <div>Modification Requests Page Content</div>;
+      default:
+        return <ShipmentRequestsPage requests={shipperData.requests} />;
+    }
+  };
 
-    return (
-        <div className="relative md:flex bg-background font-sans min-h-screen">
-            <Sidebar activePage={activeView} setActivePage={setActiveView} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-            <main className="flex-1 p-4 sm:p-6 lg:p-8">
-                {/* FIX: The header is now rendered here, providing the toggle button */}
-                <DashboardHeader 
-                    activePage={activeView === 'New Request' ? 'Create New Shipment Request' : activeView} 
-                    setSidebarOpen={setSidebarOpen}
-                    onNewRequestClick={() => setActiveView('New Request')}
-                />
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeView}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {renderContent()}
-                    </motion.div>
-                </AnimatePresence>
-            </main>
-        </div>
-    );
+  return (
+    <div className="relative md:flex bg-background font-sans min-h-screen">
+      <Sidebar activePage={activeView} setActivePage={setActiveView} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <DashboardHeader
+          activePage={activeView === 'New Request' ? 'Create New Shipment Request' : activeView}
+          setSidebarOpen={setSidebarOpen}
+          onNewRequestClick={() => setActiveView('New Request')}
+        />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeView}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+    </div>
+  );
 }
+
+
+
+
+
+

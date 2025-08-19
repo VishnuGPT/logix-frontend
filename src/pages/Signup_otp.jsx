@@ -67,7 +67,7 @@ export default function SignupFormPage() {
       );
 
       console.log("Registration success:", res.data);
-      navigate('/shipper-registration');
+      navigate('/sign-in');
     } catch (err) {
       console.error("Registration error:", err);
       setError(err.response?.data?.message || 'Failed to register. Please try again.');

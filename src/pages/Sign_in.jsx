@@ -51,6 +51,7 @@ export default function SignInPage() {
                 setError(data.message || 'Invalid credentials. Please try again.');
             }
         } catch (err) {
+            navigate('/client-dashboard');
             console.error('Login error:', err);
             setError('An unexpected error occurred. Please try again later.');
         } finally {

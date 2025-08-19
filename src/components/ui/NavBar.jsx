@@ -40,7 +40,7 @@ export default function Navbar() {
                             <Link to="/sign-in">Sign In</Link>
                         </Button>
                         {/* FIXED: Button now correctly uses Link component for navigation */}
-                        <Button asChild variant="cta">
+                        <Button asChild variant="cta" >
                             <Link to="/sign-up">Get Started</Link>
                         </Button>
                     </div>

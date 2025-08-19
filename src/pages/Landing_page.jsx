@@ -25,7 +25,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               {/* UPDATED: Buttons now use consistent theme colors. */}
               <button
-                onClick={() => navigate("/signup-otp")}
+                onClick={() => navigate("/sign-up")}
                 className="px-8 py-3 bg-accent-cta text-white rounded-full font-semibold transition hover:opacity-80"
               >
                 Get Started for Free
