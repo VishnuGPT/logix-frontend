@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Twitter, Linkedin, Instagram, ArrowUp, Send } from 'lucide-react';
-import { Input } from './Input'; // Assuming you have these
-import { Button } from './Button'; // Assuming you have these
+import { Input } from './Input'; 
+import { Button } from './Button'; 
 import { motion, AnimatePresence } from 'framer-motion';
-import Logo from '../../assets/LOGO.png'; // Adjust the path as necessary
+import Logo from '../../assets/LOGO.png'; 
 
 // --- Data for easy management ---
 const footerLinks = [
@@ -46,7 +46,6 @@ export default function Footer() {
     const [status, setStatus] = useState({ message: '', type: '' });
     const [showScroll, setShowScroll] = useState(false);
 
-    // --- Logic for showing/hiding the scroll-to-top button ---
     useEffect(() => {
         const checkScrollTop = () => {
             if (!showScroll && window.pageYOffset > 400) {
@@ -70,7 +69,6 @@ export default function Footer() {
             return;
         }
 
-        // Replace with your actual API endpoint
         // Simulating API call for now
         setStatus({ message: 'Subscribing...', type: 'loading' });
         setTimeout(() => {

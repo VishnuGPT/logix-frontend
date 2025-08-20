@@ -45,10 +45,8 @@ export default function CaseStudyShowcase() {
           </p>
         </div>
 
-        {/* Main two-column layout for the case study */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           
-          {/* Left Column: Narrative (Challenge & Solution) */}
           <div className="lg:col-span-3 space-y-8">
             <h3 className="text-3xl font-bold text-headings -mb-4">{caseStudyData.title}</h3>
             {/* Challenge Card */}

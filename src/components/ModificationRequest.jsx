@@ -24,7 +24,8 @@ const transportModes = ['Road Transport', 'Rail Transport', 'Air Transport', 'Se
 const coolingType = ['Ambient temperature/Non-Refrigerated', 'Refrigerated Frozen temperature', 'Refrigerated Chiller'];
 const truckSize = ['14 ft', '17 ft', '19 ft', '20 ft', '22 ft', '24 ft', '32 ft', '40 ft'];
 
-export const ModificationRequest = ({ formData, modifying, setFormData, setModifying }) => {
+export const ModificationRequest = ({ req, modifying, setModifying }) => {
+    const [formData, setFormData] = React.useState({ ...req });
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

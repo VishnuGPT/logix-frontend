@@ -53,15 +53,12 @@ export default function ContactCTASection() {
                     ))}
                 </div>
 
-                {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-12">
                     
-                    {/* FIX: Added <Link> as the child for the button to style */}
                     <Button asChild variant="cta" size="lg">
                         <Link to="/sign-up">Get Started Now</Link>
                     </Button>
 
-                    {/* FIX: Added <Link> as the child for the button to style */}
                     <Button asChild variant="outline" size="lg">
                         <Link to="/schedule-demo">Schedule a Demo</Link>
                     </Button>

@@ -7,7 +7,6 @@ import OtpInput from '../components/Otp_input';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-// --- Helper Component for the progress bar ---
 const ProgressIndicator = ({ currentStep, totalSteps }) => {
   const progress = (currentStep / totalSteps) * 100;
   return (

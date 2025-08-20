@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, ChevronDown, MapPin, Calendar,Ruler,DollarSign , Package, Truck, Scale, Users, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {ModificationRequest} from './ModificationRequest';
-// --- Helper Components for Theming and Structure ---
 
 const StatusBadge = ({ status }) => {
     const styles = {
@@ -45,7 +44,7 @@ const ShipmentCard = ({ req }) => {
     const {
         status, pickupAddressLine2, dropAddressLine2, pickupState, dropState,
         materialType, expectedPickupDate, expectedDeliveryDate, pickupAddressLine1,
-        pickupPincode, dropAddressLine1, dropPincode, weightKg, lengthFt,
+        pickupPincode, dropAddressLine1, dropPincode, weightKg, lengthFt, customMaterialType,
         widthFt, heightFt, bodyType, truckSize, manpower,
         noOfLabours, materialValue, additionalNotes, ebayBillUrl
     } = formData;
@@ -53,7 +52,6 @@ const ShipmentCard = ({ req }) => {
     return (
           
         <motion.div layout className="bg-white border border-black/10 shadow-sm rounded-xl">
-            {/* IMPROVEMENT: Card header is now responsive with flex-wrap */}
             <motion.div layout className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6 cursor-pointer p-4" onClick={() => setExpanded(!expanded)}>
                 <div>
                     <h2 className="text-base font-semibold text-headings">{pickupAddressLine2}, {pickupState} → {dropAddressLine2}, {dropState}</h2>
@@ -82,7 +80,7 @@ const ShipmentCard = ({ req }) => {
                             </DetailSection>
 
                             <DetailSection title="Cargo & Dimensions">
-                                <DetailItem icon={<Package size={14} />} label="Material" value={materialType} />
+                                <DetailItem icon={<Package size={14} />} label="Material" value={materialType === "Others" ? customMaterialType : materialType} />
                                 <DetailItem icon={<Scale size={14} />} label="Weight" value={`${weightKg} kg`} />
                                 <DetailItem icon={<Ruler size={14} />} label="Dimensions" value={`${lengthFt} x ${widthFt} x ${heightFt} ft`} />
                             </DetailSection>
@@ -115,8 +113,7 @@ const ShipmentCard = ({ req }) => {
                                 {modifying && (
                                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                         <ModificationRequest 
-                                            formData={formData} 
-                                            setFormData={setFormData} 
+                                            req={formData}
                                             setModifying={setModifying}
                                             modifying={modifying}
                                         />

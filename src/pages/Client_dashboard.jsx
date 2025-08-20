@@ -13,6 +13,7 @@ const shipperData = {
   requests: [
   {
     id: 1,
+    shipperId: 22,
     pickupAddressLine2: "Vadodara",
     dropAddressLine2: "Indore",
     pickupAddressLine1: "Sayajigunj",
@@ -23,7 +24,8 @@ const shipperData = {
     dropPincode: "452001",
     expectedPickupDate: "2025-08-16",
     expectedDeliveryDate: "2025-08-20",
-    materialType: "Fragile Items",
+    materialType: "Others",
+    customMaterialType:"Bomb",
     weightKg: 1200,
     lengthFt: 18,
     widthFt: 7,
@@ -31,7 +33,8 @@ const shipperData = {
     truckSize: "19",
     bodyType: "Closed",
     shipmentType: "FTL",
-    manpower: "no",
+    noOfLabours: 5,
+    manpower: "yes",
     transportMode: "Road Transport",
     coolingType: "Ambient temperature/Non-Refrigerated",
     materialValue: 500000,

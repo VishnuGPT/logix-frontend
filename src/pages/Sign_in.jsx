@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Input } from '../components/ui/Input'; // Assuming you have these
-import { Button } from '../components/ui/Button'; // Assuming you have these
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button'; 
 
 // --- Helper component for the Google Icon ---
 const GoogleIcon = () => (
@@ -17,7 +17,6 @@ export default function SignInPage() {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    // UX Improvement: State for inline feedback instead of alerts
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -61,7 +60,6 @@ export default function SignInPage() {
 
     return (
         <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-            {/* Animated background shapes for a modern feel */}
             <div className="absolute top-0 left-0 w-72 h-72 bg-interactive/10 rounded-full blur-3xl animate-blob"></div>
             <div className="absolute bottom-0 right-0 w-72 h-72 bg-accent-cta/10 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
 

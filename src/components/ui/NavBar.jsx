@@ -16,11 +16,9 @@ export default function Navbar() {
 
     return (
         <>
-            {/* KEPT: Your preferred fixed, full-width navbar style. */}
             {/* THEMED: Updated colors to match your website's theme. z-index is set to 40. */}
             <nav className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-black/10 shadow-sm">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    {/* --- Logo --- */}
                     <Link to="/" className="flex-shrink-0">
                         <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-10 w-auto" />
                     </Link>
@@ -96,7 +94,7 @@ export default function Navbar() {
                                     <Link to="/sign-in">Sign In</Link>
                                 </Button>
                                 <Button asChild variant="cta" size="lg" onClick={toggleMenu}>
-                                    <Link to="/signup-otp">Get Started</Link>
+                                    <Link to="/sign-up">Get Started</Link>
                                 </Button>
                             </div>
                         </motion.div>

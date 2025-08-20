@@ -5,26 +5,24 @@ const articles = [
   {
     title: "How Tier-2 Logistics is the Next Big Opportunity in India",
     source: "Times of India",
-    url: "#", // Replace with actual URL
+    url: "#", 
   },
   {
     title: "Telematics and Driver Safety: What You Must Know",
     source: "The Hindu",
-    url: "#", // Replace with actual URL
+    url: "#", 
   },
   {
     title: "Digital Freight Platforms vs Traditional Brokers",
     source: "Hindustan Times",
-    url: "#", // Replace with actual URL
+    url: "#", 
   },
 ];
 
 export default function News() {
   return (
-    // UPDATED: Section styling is now consistent.
     <section className="bg-background py-20 sm:py-24">
       <div className="max-w-5xl mx-auto px-6">
-        {/* UPDATED: Section header uses theme colors. */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-headings mb-4">
             Top Reads & Insights
@@ -34,10 +32,8 @@ export default function News() {
           </p>
         </div>
 
-        {/* UPDATED: Mapping over the articles array. */}
         <div className="space-y-4">
           {articles.map((article) => (
-            // UPDATED: Card style is now minimalist and consistent.
             <div
               key={article.title}
               className="bg-white p-6 rounded-lg border border-black/5 transition hover:border-black/10"

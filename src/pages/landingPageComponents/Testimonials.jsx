@@ -60,7 +60,6 @@ export default function Testimonials() {
         {/* --- Testimonials Grid --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {testimonials.map((item) => (
-            // UPDATED: Card styling is now clean and consistent.
             <div key={item.name} className="bg-white p-8 rounded-lg border border-black/5">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-headings/10 rounded-full flex-shrink-0"></div> {/* Placeholder for an avatar */}
