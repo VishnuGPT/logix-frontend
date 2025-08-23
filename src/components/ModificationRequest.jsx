@@ -22,28 +22,103 @@ const materialTypes = [
 
 const transportModes = ['Road Transport', 'Rail Transport', 'Air Transport', 'Sea Transport', 'Intermodal'];
 const coolingType = ['Ambient temperature/Non-Refrigerated', 'Refrigerated Frozen temperature', 'Refrigerated Chiller'];
-const truckSize = ['14 ft', '17 ft', '19 ft', '20 ft', '22 ft', '24 ft', '32 ft', '40 ft'];
+const truckSize = ['14', '17', '19', '20', '22', '24', '32', '40'];
 
 export const ModificationRequest = ({ req, modifying, setModifying }) => {
     const [formData, setFormData] = React.useState({ ...req });
+    const [errors, setErrors] = React.useState({});
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.put(
-        `http://localhost:5000/api/shipments/${formData._id}`,
-        formData
-      );
-      console.log("Update successful:", response.data);
-      setModifying(false);
-    } catch (error) {
-      console.error("Error updating shipment:", error);
+    // Regex to filter input in real-time
+    const integerOnlyRegex = /^\d*$/;
+    const decimalOnlyRegex = /^\d*\.?\d*$/;
+    const pincodeRegex = /^\d{0,6}$/;
+
+    let shouldUpdate = true;
+
+    switch (name) {
+        case 'pickupPincode':
+        case 'dropPincode':
+            if (!pincodeRegex.test(value)) shouldUpdate = false;
+            break;
+        case 'weightKg':
+        case 'materialValue':
+        case 'noOfLabours':
+            if (!integerOnlyRegex.test(value)) shouldUpdate = false;
+            break;
+        case 'lengthFt':
+        case 'widthFt':
+        case 'heightFt':
+            if (!decimalOnlyRegex.test(value)) shouldUpdate = false;
+            break;
+        default:
+            // For other fields (selects, textareas, etc.), allow update
+            break;
+    }
+
+    if (shouldUpdate) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+        // Clear the error for this field as the user is typing
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     }
   };
+
+  const validate = () => {
+    const newErrors = {};
+    
+    // Pincode validation
+    if (formData.pickupPincode && formData.pickupPincode.length !== 6) newErrors.pickupPincode = "Pincode must be 6 digits.";
+    else if (!formData.pickupPincode) newErrors.pickupPincode = "Pincode is required.";
+
+    if (formData.dropPincode && formData.dropPincode.length !== 6) newErrors.dropPincode = "Pincode must be 6 digits.";
+    else if (!formData.dropPincode) newErrors.dropPincode = "Pincode is required.";
+
+    // Date validation
+    if (formData.expectedPickupDate && formData.expectedDeliveryDate) {
+        if (new Date(formData.expectedPickupDate) >= new Date(formData.expectedDeliveryDate)) {
+            newErrors.expectedDeliveryDate = "Delivery date must be after pickup date.";
+        }
+    } else {
+        if (!formData.expectedPickupDate) newErrors.expectedPickupDate = "Pickup date is required.";
+        if (!formData.expectedDeliveryDate) newErrors.expectedDeliveryDate = "Delivery date is required.";
+    }
+
+    // Other required fields
+    if (!formData.weightKg) newErrors.weightKg = "Weight is required.";
+    if (!formData.materialValue) newErrors.materialValue = "Value is required.";
+    if (!formData.lengthFt) newErrors.lengthFt = "Length is required.";
+    if (!formData.widthFt) newErrors.widthFt = "Width is required.";
+    if (!formData.heightFt) newErrors.heightFt = "Height is required.";
+    if (formData.manpower === 'yes' && !formData.noOfLabours) newErrors.noOfLabours = "Number of labourers is required.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (validate()) {
+      try {
+        const response = await axios.put(`http://localhost:5000/api/shipments/${formData._id}`, formData);
+        console.log("Update successful:", response.data);
+        setModifying(false); // Close form on success
+      } catch (error) {
+        console.error("Error updating shipment:", error);
+        setErrors(prev => ({ ...prev, submit: 'Failed to submit modification. Please try again.' }));
+      }
+    }
+  };
+
+  const inputClass = (name) => `w-full border rounded-md p-2 ${errors[name] ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} focus:border-blue-500 focus:ring-1 focus:outline-none transition-colors`;
+  const errorText = (name) => errors[name] && <p className="text-xs text-red-500 mt-1">{errors[name]}</p>;
 
   return (
     <AnimatePresence>
@@ -68,42 +143,47 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <input
                   name="pickupAddressLine1"
                   value={formData.pickupAddressLine1 || ""}
-                  onChange={(e) => handleChange("pickupAddressLine1", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Building no, street"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('pickupAddressLine1')}
                 />
+                {errorText('pickupAddressLine1')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Address Line 2</span>
                 <input
                   name="pickupAddressLine2"
                   value={formData.pickupAddressLine2 || ""}
-                  onChange={(e) => handleChange("pickupAddressLine2", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="City / Area"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('pickupAddressLine2')}
                 />
+                {errorText('pickupAddressLine2')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">State</span>
                 <select
                   name="pickupState"
                   value={formData.pickupState || ""}
-                  onChange={(e) => handleChange("pickupState", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  onChange={handleInputChange}
+                  className={inputClass('pickupState')}
                 >
                   <option value="">Select State</option>
                   {indianStates.map(state => <option key={state} value={state}>{state}</option>)}
                 </select>
+                {errorText('pickupState')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Pincode</span>
                 <input
                   name="pickupPincode"
                   value={formData.pickupPincode || ""}
-                  onChange={(e) => handleChange("pickupPincode", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Pincode"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('pickupPincode')}
+                  maxLength={6}
                 />
+                {errorText('pickupPincode')}
               </label>
             </div>
           </div>
@@ -120,42 +200,47 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <input
                   name="dropAddressLine1"
                   value={formData.dropAddressLine1 || ""}
-                  onChange={(e) => handleChange("dropAddressLine1", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Building no, street"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('dropAddressLine1')}
                 />
+                {errorText('dropAddressLine1')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Address Line 2</span>
                 <input
                   name="dropAddressLine2"
                   value={formData.dropAddressLine2 || ""}
-                  onChange={(e) => handleChange("dropAddressLine2", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="City / Area"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('dropAddressLine2')}
                 />
+                {errorText('dropAddressLine2')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">State</span>
                 <select
                   name="dropState"
                   value={formData.dropState || ""}
-                  onChange={(e) => handleChange("dropState", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  onChange={handleInputChange}
+                  className={inputClass('dropState')}
                 >
                   <option value="">Select State</option>
                   {indianStates.map(state => <option key={state} value={state}>{state}</option>)}
                 </select>
+                {errorText('dropState')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Pincode</span>
                 <input
                   name="dropPincode"
                   value={formData.dropPincode || ""}
-                  onChange={(e) => handleChange("dropPincode", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Pincode"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('dropPincode')}
+                  maxLength={6}
                 />
+                {errorText('dropPincode')}
               </label>
             </div>
           </div>
@@ -172,12 +257,13 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <select
                   name="materialType"
                   value={formData.materialType || ""}
-                  onChange={(e) => handleChange("materialType", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  onChange={handleInputChange}
+                  className={inputClass('materialType')}
                 >
                   <option value="">Select material type</option>
                   {materialTypes.map(type => <option key={type} value={type}>{type}</option>)}
                 </select>
+                {errorText('materialType')}
               </label>
               {formData.materialType === 'Others' && (
                 <label>
@@ -185,33 +271,36 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                   <input
                     name="customMaterialType"
                     value={formData.customMaterialType || ""}
-                    onChange={(e) => handleChange("customMaterialType", e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Please specify other material"
-                    className="w-full border rounded-md p-2"
+                    className={inputClass('customMaterialType')}
                   />
+                  {errorText('customMaterialType')}
                 </label>
               )}
               <label>
                 <span className="block text-xs font-medium text-gray-600">Weight (kg)</span>
                 <input
-                  type="number"
+                  type="text"
                   name="weightKg"
                   value={formData.weightKg || ""}
-                  onChange={(e) => handleChange("weightKg", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Weight (kg)"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('weightKg')}
                 />
+                {errorText('weightKg')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Value of Material (₹)</span>
                 <input
-                  type="number"
+                  type="text"
                   name="materialValue"
                   value={formData.materialValue || ""}
-                  onChange={(e) => handleChange("materialValue", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Value of Material (₹)"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('materialValue')}
                 />
+                {errorText('materialValue')}
               </label>
             </div>
           </div>
@@ -225,35 +314,38 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
               <label>
                 <span className="block text-xs font-medium text-gray-600">Length (ft)</span>
                 <input
-                  type="number"
-                  name="length"
+                  type="text"
+                  name="lengthFt"
                   value={formData.lengthFt || ""}
-                  onChange={(e) => handleChange("length", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Length in ft"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('lengthFt')}
                 />
+                {errorText('lengthFt')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Width (ft)</span>
                 <input
-                  type="number"
-                  name="width"
+                  type="text"
+                  name="widthFt"
                   value={formData.widthFt || ""}
-                  onChange={(e) => handleChange("width", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Width in ft"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('widthFt')}
                 />
+                {errorText('widthFt')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Height (ft)</span>
                 <input
-                  type="number"
-                  name="height"
+                  type="text"
+                  name="heightFt"
                   value={formData.heightFt || ""}
-                  onChange={(e) => handleChange("height", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Height in ft"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('heightFt')}
                 />
+                {errorText('heightFt')}
               </label>
             </div>
           </div>
@@ -270,45 +362,49 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <input
                   type="date"
                   name="expectedPickupDate"
-                  value={formData.expectedPickupDate || ""}
-                  onChange={(e) => handleChange("expectedPickupDate", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  value={formData.expectedPickupDate?.split('T')[0] || ""}
+                  onChange={handleInputChange}
+                  className={inputClass('expectedPickupDate')}
                 />
+                {errorText('expectedPickupDate')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Expected Delivery Date</span>
                 <input
                   type="date"
                   name="expectedDeliveryDate"
-                  value={formData.expectedDeliveryDate || ""}
-                  onChange={(e) => handleChange("expectedDeliveryDate", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  value={formData.expectedDeliveryDate?.split('T')[0] || ""}
+                  onChange={handleInputChange}
+                  className={inputClass('expectedDeliveryDate')}
                 />
+                {errorText('expectedDeliveryDate')}
               </label>
               <label>
                 <span className="block text-xs font-medium text-gray-600">Transport Mode</span>
                 <select
                   name="transportMode"
                   value={formData.transportMode || ""}
-                  onChange={(e) => handleChange("transportMode", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  onChange={handleInputChange}
+                  className={inputClass('transportMode')}
                 >
                   <option value="">Select Transport Mode</option>
                   {transportModes.map(mode => <option key={mode} value={mode}>{mode}</option>)}
                 </select>
+                {errorText('transportMode')}
               </label>
               {formData.transportMode === 'Road Transport' && (
                 <label>
                   <span className="block text-xs font-medium text-gray-600">Truck Size</span>
                   <select
                     name="truckSize"
-                    value={`${formData.truckSize} ft`|| ""}
-                    onChange={(e) => handleChange("truckSize", e.target.value)}
-                    className="w-full border rounded-md p-2"
+                    value={formData.truckSize || ""}
+                    onChange={handleInputChange}
+                    className={inputClass('truckSize')}
                   >
                     <option value="">Select Truck Size</option>
-                    {truckSize.map(size => <option key={size} value={size}>{size}</option>)}
+                    {truckSize.map(size => <option key={size} value={size}>{size} ft</option>)}
                   </select>
+                  {errorText('truckSize')}
                 </label>
               )}
               <label>
@@ -316,8 +412,8 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <select
                   name="coolingType"
                   value={formData.coolingType || ""}
-                  onChange={(e) => handleChange("coolingType", e.target.value)}
-                  className="w-full border rounded-md p-2"
+                  onChange={handleInputChange}
+                  className={inputClass('coolingType')}
                 >
                   <option value="">Select Temperature</option>
                   {coolingType.map(type => <option key={type} value={type}>{type}</option>)}
@@ -332,13 +428,13 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
                     <input type="radio" name="shipmentType" value="PTL" 
-                      checked={formData.shipmentType === 'PTL'} 
-                      onChange={(e) => handleChange("shipmentType", e.target.value)} /> PTL
+                      checked={formData.shipmentType === 'PTL'}
+                      onChange={handleInputChange} /> PTL
                   </label>
                   <label className="flex items-center gap-1">
                     <input type="radio" name="shipmentType" value="FTL" 
-                      checked={formData.shipmentType === 'FTL'} 
-                      onChange={(e) => handleChange("shipmentType", e.target.value)} /> FTL
+                      checked={formData.shipmentType === 'FTL'}
+                      onChange={handleInputChange} /> FTL
                   </label>
                 </div>
               </div>
@@ -346,14 +442,14 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <label className="text-xs font-medium text-gray-500">Body Type</label>
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="bodyType" value="Open" 
-                      checked={formData.bodyType === 'Open'} 
-                      onChange={(e) => handleChange("bodyType", e.target.value)} /> Open
+                    <input type="radio" name="bodyType" value="Open"
+                      checked={formData.bodyType === 'Open'}
+                      onChange={handleInputChange} /> Open
                   </label>
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="bodyType" value="Closed" 
-                      checked={formData.bodyType === 'Closed'} 
-                      onChange={(e) => handleChange("bodyType", e.target.value)} /> Closed
+                    <input type="radio" name="bodyType" value="Closed"
+                      checked={formData.bodyType === 'Closed'}
+                      onChange={handleInputChange} /> Closed
                   </label>
                 </div>
               </div>
@@ -361,30 +457,32 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <label className="text-xs font-medium text-gray-500">Manpower</label>
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="manpower" value="yes" 
-                      checked={formData.manpower === 'yes'} 
-                      onChange={(e) => handleChange("manpower", e.target.value)} /> Yes
+                    <input type="radio" name="manpower" value="yes"
+                      checked={formData.manpower === 'yes'}
+                      onChange={handleInputChange} /> Yes
                   </label>
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="manpower" value="no" 
-                      checked={formData.manpower === 'no'} 
-                      onChange={(e) => handleChange("manpower", e.target.value)} /> No
+                    <input type="radio" name="manpower" value="no"
+                      checked={formData.manpower === 'no'}
+                      onChange={handleInputChange} /> No
                   </label>
                 </div>
               </div>
             </div>
 
             {formData.manpower === 'yes' && (
-              <div className="pt-2">
+              <label className="block pt-2">
+                <span className="block text-xs font-medium text-gray-600">Number of Labours</span>
                 <input
-                  type="number"
+                  type="text"
                   name="noOfLabours"
                   value={formData.noOfLabours || ""}
-                  onChange={(e) => handleChange("noOfLabours", e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Number of Labours"
-                  className="w-full border rounded-md p-2"
+                  className={inputClass('noOfLabours')}
                 />
-              </div>
+                {errorText('noOfLabours')}
+              </label>
             )}
           </div>
 
@@ -396,13 +494,14 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
             </label>
             <textarea
               value={formData.additionalNotes || ""}
-              onChange={(e) => handleChange("additionalNotes", e.target.value)}
-              className="w-full border rounded-md p-2"
+              name="additionalNotes"
+              onChange={handleInputChange}
+              className={inputClass('additionalNotes')}
               rows={3}
               placeholder="Provide any extra details or instructions here..."
             />
           </div>
-
+          {errors.submit && <p className="text-sm text-red-500 text-center py-2">{errors.submit}</p>}
           
           <button   
             type="submit"
@@ -415,5 +514,3 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
     </AnimatePresence>
   );
 };
-
-

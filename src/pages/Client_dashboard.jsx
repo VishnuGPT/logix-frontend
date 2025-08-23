@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useRef } from 'react';
 import {ShipmentRequestForm} from '../components/CreateShipment'
 import {ShipmentRequestsPage} from '../components/ShipmentRequestPage';
+import { ModificationRequestsPage } from '@/components/ModificationRequestsPage';
+import { ModificationRequest } from '@/components/ModificationRequest';
 
 // --- MOCK DATA (Shipper Only) ---
 const shipperData = {
@@ -42,6 +44,38 @@ const shipperData = {
     status: "REQUESTED"
   }
 ],
+  modificationRequest:[
+    {
+      id: 1,
+      shipperId: 22,
+      pickupAddressLine2: "Vadodara",
+      dropAddressLine2: "Indore",
+      pickupAddressLine1: "Sayajigunj",
+      pickupState: "Uttar Pradesh",
+      pickupPincode: "390001",
+      dropAddressLine1: "Rajendra Nagar",
+      dropState: "Madhya Pradesh",
+      dropPincode: "452001",
+      expectedPickupDate: "2025-08-16",
+      expectedDeliveryDate: "2025-08-20",
+      materialType: "Others",
+      customMaterialType:"Bomb",
+      weightKg: 1200,
+      lengthFt: 18,
+      widthFt: 7,
+      heightFt: 6,
+      truckSize: "19",
+      bodyType: "Closed",
+      shipmentType: "FTL",
+      noOfLabours: 5,
+      manpower: "yes",
+      transportMode: "Road Transport",
+      coolingType: "Ambient temperature/Non-Refrigerated",
+      materialValue: 500000,
+      additionalNotes: "Handle with extreme care. Flammable.",
+      status: "Pending"
+    }
+  ],
   status: [
     { id: 'SH001', route: 'Mumbai → Delhi', progress: 65, delivery: '20 Aug, 2025', status: 'in-transit' },
     { id: 'SH004', route: 'Bengaluru → Chennai', progress: 10, delivery: '22 Aug, 2025', status: 'pickup-scheduled' },
@@ -63,6 +97,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
   const navItems = [
     { name: 'Profile', icon: <User size={18} /> },
     { name: 'Requests', icon: <Plus size={18} /> },
+    { name: 'Modification Requests', icon: <FileText size={18} /> },
     { name: 'Status', icon: <BarChart2 size={18} /> },
     { name: 'Billing', icon: <FileText size={18} /> },
   ];
@@ -204,7 +239,7 @@ export default function ShipperDashboard() {
       case 'Profile':
         return <div>Profile Page Content</div>;
       case 'Modification Requests':
-        return <div>Modification Requests Page Content</div>;
+        return <ModificationRequestsPage requests={shipperData.modificationRequest}/>;
       default:
         return <ShipmentRequestsPage requests={shipperData.requests} />;
     }
