@@ -1,0 +1,14 @@
+{
+  "header": {
+    "title": "Top Reads & Insights",
+    "subtitle": "Explore the latest insights and trends shaping logistics and freight."
+  },
+  "articles": [
+    { "title": "How Tier-2 Logistics is the Next Big Opportunity in India", "source": "Times of India" },
+    { "title": "Telematics and Driver Safety: What You Must Know", "source": "The Hindu" },
+    { "title": "Digital Freight Platforms vs Traditional Brokers", "source": "Hindustan Times" }
+  ],
+  "buttons": {
+    "readMore": "Read More"
+  }
+}

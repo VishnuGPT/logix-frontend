@@ -1,0 +1,30 @@
+{
+  "testimonials": {
+    "title": "Trusted by the Best in the Business",
+    "subtitle": "Our partners trust us to streamline their operations and drive growth.",
+    "users": {
+      "ravi": {
+        "role": "Transporter (Lucknow)",
+        "quote": "With LogiXjunction, I receive more consistent loads and faster payments. No more endless calls!"
+      },
+      "ankita": {
+        "role": "Shipper (Indore)",
+        "quote": "Their tracking system and route planning saved us 15% in logistics costs in 3 months!"
+      }
+    }
+  },
+  "stats": {
+    "trustedFleetOwners": {
+      "label": "Trusted Fleet Owners",
+      "desc": "Reliable partnerships across India’s logistics ecosystem."
+    },
+    "shipperCoverage": {
+      "label": "Shipper Coverage",
+      "desc": "Pan-India presence with smart regional matching."
+    },
+    "platformRating": {
+      "label": "Platform Rating",
+      "desc": "Based on verified user feedback from our partners."
+    }
+  }
+}

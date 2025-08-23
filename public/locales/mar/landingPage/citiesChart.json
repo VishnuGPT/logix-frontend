@@ -1,0 +1,30 @@
+{
+  "citiesChart": {
+    "headline": "भारतभर आमच्या उपस्थितीत वाढ",
+    "subtext": "सध्या 21+ प्रमुख शहरांमध्ये सेवा पुरवली जात आहे आणि विस्तार सुरू आहे.",
+    "cities": {
+      "ahmedabad": "अहमदाबाद",
+      "bangalore": "बंगळुरू",
+      "chandigarh": "चंदीगड",
+      "chennai": "चेन्नई",
+      "coimbatore": "कोयंबतूर",
+      "hyderabad": "हैदराबाद",
+      "delhi": "दिल्ली",
+      "indore": "इंदूर",
+      "kanpur": "कानपूर",
+      "jaipur": "जयपूर",
+      "kochi": "कोच्ची",
+      "lucknow": "लखनऊ",
+      "kolkata": "कोलकाता",
+      "ludhiana": "लुधियाना",
+      "mumbai": "मुंबई",
+      "nagpur": "नागपूर",
+      "nashik": "नाशिक",
+      "pune": "पुणे",
+      "surat": "सुरत",
+      "trivandrum": "त्रिवेंद्रम",
+      "vadodara": "वडोदरा",
+      "visakhapatnam": "विशाखापट्टणम"
+    }
+  }
+}
