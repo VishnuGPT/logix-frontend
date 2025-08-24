@@ -1,0 +1,12 @@
+{
+  "links": {
+    "home": "Home",
+    "about": "Our Story",
+    "join": "Join Us"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "getStarted": "Get Started"
+  },
+  "selectLanguage": "Select Language"
+}

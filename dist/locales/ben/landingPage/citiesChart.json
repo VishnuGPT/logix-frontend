@@ -1,0 +1,30 @@
+{
+  "citiesChart": {
+    "headline": "ভারতে আমাদের উপস্থিতি বাড়ানো হচ্ছে",
+    "subtext": "বর্তমানে 21+ প্রধান শহরে সেবা প্রদান করা হচ্ছে এবং সম্প্রসারণ চলমান।",
+    "cities": {
+      "ahmedabad": "আহমেদাবাদ",
+      "bangalore": "বেনগালুরু",
+      "chandigarh": "চণ্ডীগড়",
+      "chennai": "চেন্নাই",
+      "coimbatore": "কোইম্বাটোর",
+      "hyderabad": "হায়দ্রাবাদ",
+      "delhi": "দিল্লি",
+      "indore": "ইন্দোর",
+      "kanpur": "কানপুর",
+      "jaipur": "জয়পুর",
+      "kochi": "কোচি",
+      "lucknow": "লখনউ",
+      "kolkata": "কলকাতা",
+      "ludhiana": "লুধিয়ানা",
+      "mumbai": "মুম্বাই",
+      "nagpur": "নাগপুর",
+      "nashik": "নাসিক",
+      "pune": "পুনে",
+      "surat": "সুরাট",
+      "trivandrum": "ত্রিভেন্দ্রাম",
+      "vadodara": "ভাদোদারা",
+      "visakhapatnam": "বিশাখাপত্তনম"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "header": {
+    "title": "Key Features",
+    "subtitle": "Explore our core offerings that make freight smarter, faster, and fairer."
+  },
+  "features": [
+    { "title": "Digital Freight Marketplace", "desc": "Post, match & move loads with intelligent logistics algorithms." },
+    { "title": "Fleet Telematics & Tracking", "desc": "Monitor real-time location, performance, and efficiency of your vehicles." },
+    { "title": "Route Optimization", "desc": "Minimize fuel costs and delivery times with AI-powered route planning." },
+    { "title": "Transparent Bidding System", "desc": "Fair, fast, and visible bidding between shippers and transporters." }
+  ]
+}

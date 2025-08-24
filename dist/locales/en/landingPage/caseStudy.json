@@ -1,0 +1,23 @@
+{
+  "sectionHeader": {
+    "title": "See Our Platform in Action",
+    "subtitle": "Here's how we solved a real-world logistics challenge for a valued partner."
+  },
+  "title": "Optimizing Freight in Madhya Pradesh",
+  "challenge": {
+    "title": "The Challenge",
+    "text": "A regional FMCG distributor was losing valuable time and customer trust due to haphazard load matching and last-minute route changes, which inflated their operating costs."
+  },
+  "solution": {
+    "title": "Our Solution",
+    "text": "We built a dynamic route-optimization engine that evaluated live traffic, load weight, and vehicle availability, paired with a smart, real-time bidding module for carriers."
+  },
+  "results": {
+    "title": "The Results",
+    "metrics": [
+      { "value": "+23%", "label": "Increase in On-Time Delivery" },
+      { "value": "-18%", "label": "Reduction in Logistics Costs" }
+    ]
+  }
+}
+

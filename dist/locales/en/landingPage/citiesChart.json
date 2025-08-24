@@ -1,0 +1,30 @@
+{
+  "citiesChart": {
+    "headline": "Expanding Our Presence Across India",
+    "subtext": "Currently serving in 21+ major cities and growing.",
+    "cities": {
+      "ahmedabad": "Ahmedabad",
+      "bangalore": "Bangalore",
+      "chandigarh": "Chandigarh",
+      "chennai": "Chennai",
+      "coimbatore": "Coimbatore",
+      "hyderabad": "Hyderabad",
+      "delhi": "Delhi",
+      "indore": "Indore",
+      "kanpur": "Kanpur",
+      "jaipur": "Jaipur",
+      "kochi": "Kochi",
+      "lucknow": "Lucknow",
+      "kolkata": "Kolkata",
+      "ludhiana": "Ludhiana",
+      "mumbai": "Mumbai",
+      "nagpur": "Nagpur",
+      "nashik": "Nashik",
+      "pune": "Pune",
+      "surat": "Surat",
+      "trivandrum": "Trivandrum",
+      "vadodara": "Vadodara",
+      "visakhapatnam": "Visakhapatnam"
+    }
+  }
+}

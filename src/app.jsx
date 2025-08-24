@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
-
+import AdminDashboard from './pages/AdminDashboard';
+import AdminSignIn from './pages/AdminSigin';
 // --- UI Components ---
 import Navbar from './components/ui/NavBar';
 import Footer from './components/ui/Footer';
@@ -56,6 +57,7 @@ function App() {
         {/* --- Full-screen pages (no Navbar/Footer) --- */}
         <Route element={<FullPageLayout />}>
           {/* Auth Routes */}
+          <Route path="/admin-sign-in" element={<AdminSignIn />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/sign-up" element={<SignupFormPage />} />
 
@@ -65,6 +67,7 @@ function App() {
           <Route path="/driver-registration" element={<DriverRegistration />} />
 
           {/* Dashboard Routes */}
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
           <Route path="/client-dashboard" element={<ClientDashboard />} />
           <Route path="/consignment" element={<Consignment />} />

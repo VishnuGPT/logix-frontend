@@ -13,6 +13,7 @@ const footerLinks = [
             { label: 'About Us', href: '/about-us' },
             { label: 'Careers', href: '/careers' },
             { label: 'News', href: '/news' },
+            { label: 'Admin Access', href: '/admin-sign-in' }
         ],
     },
     {

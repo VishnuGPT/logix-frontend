@@ -1,0 +1,30 @@
+{
+  "citiesChart": {
+    "headline": "भारत में हमारे विस्तार की उपस्थिति",
+    "subtext": "वर्तमान में 21+ प्रमुख शहरों में सेवाएँ उपलब्ध हैं और विस्तार जारी है।",
+    "cities": {
+      "ahmedabad": "अहमदाबाद",
+      "bangalore": "बैंगलोर",
+      "chandigarh": "चंडीगढ़",
+      "chennai": "चेन्नई",
+      "coimbatore": "कोयम्बटूर",
+      "hyderabad": "हैदराबाद",
+      "delhi": "दिल्ली",
+      "indore": "इंदौर",
+      "kanpur": "कानपुर",
+      "jaipur": "जयपुर",
+      "kochi": "कोच्चि",
+      "lucknow": "लखनऊ",
+      "kolkata": "कोलकाता",
+      "ludhiana": "लुधियाना",
+      "mumbai": "मुंबई",
+      "nagpur": "नागपुर",
+      "nashik": "नासिक",
+      "pune": "पुणे",
+      "surat": "सूरत",
+      "trivandrum": "त्रिवेंद्रम",
+      "vadodara": "वडोदरा",
+      "visakhapatnam": "विशाखापत्तनम"
+    }
+  }
+}
