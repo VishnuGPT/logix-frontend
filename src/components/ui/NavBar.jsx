@@ -62,7 +62,7 @@ export default function Navbar() {
           {/* Right Side */}
           <div className="hidden md:flex items-center gap-4 relative">
             {/* Language Dropdown */}
-            <div className="relative">
+            {/* <div className="relative">
               <button
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                 className="p-2 rounded-full hover:bg-black/10 transition"
@@ -84,7 +84,7 @@ export default function Navbar() {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Auth Buttons */}
             <Button asChild variant="ghost">
