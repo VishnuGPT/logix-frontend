@@ -207,8 +207,6 @@ useEffect(() => {
         return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
       case 'Profile':
         return <ProfilePage user={shipperData.user} />;
-      case 'Modification Requests':
-        return <div>Modification Requests Page Content</div>;
       case 'Offers':
         return <OffersPage />;
     }
