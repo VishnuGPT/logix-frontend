@@ -1,20 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, ChevronDown, MapPin, Calendar, Ruler, DollarSign, Package, Truck, Scale, Users, FileText, Download, Airplay } from 'lucide-react';
+import { User, Menu, Users, X, Edit, Plus, ChevronDown, BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, Airplay } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ModificationRequest } from './ModificationRequest';
-import axios from 'axios'
-const StatusBadge = ({ status }) => {
-    const styles = {
-        CONFIRMED: 'bg-green-500/10 text-green-600',
-        PENDING: 'bg-yellow-500/10 text-yellow-600',
-        REQUESTED: 'bg-interactive/10 text-interactive',
-        OFFER_SENT: 'bg-purple-500/10 text-purple-600',
-    };
-    return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${styles[status] || 'bg-black/10 text-text'}`}>{status.replace('_', ' ')}</span>;
-};
-
-
+import axios from 'axios';
+import { useRef } from 'react';
 
 const DetailItem = ({ icon, label, value }) => (
     <div>
@@ -35,29 +24,34 @@ const DetailSection = ({ title, children }) => (
     </div>
 );
 
-// --- Main Card Component ---
-
-const ShipmentCard = ({ req }) => {
+const StatusBadge = ({ status }) => {
+    const styles = {
+        accepted: 'bg-green-500/10 text-green-600',
+        pending: 'bg-yellow-500/10 text-yellow-600',
+        rejected: 'bg-red-500/10 text-red-600',
+    };
+    return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${styles[status] || 'bg-black/10 text-text'}`}>{status}</span>;
+};
+const GetModificationRequestsCard = ({ req }) => {
     const [expanded, setExpanded] = useState(false);
     const [modifying, setModifying] = useState(false);
     const [formData, setFormData] = useState({ ...req });
 
     // Destructure all the new fields from the req prop for cleaner access
     const {
-        id, cost,
         status, pickupAddressLine2, dropAddressLine2, pickupState, dropState,
         materialType, expectedPickupDate, expectedDeliveryDate, pickupAddressLine1,
         pickupPincode, dropAddressLine1, dropPincode, weightKg, lengthFt, customMaterialType,
         widthFt, heightFt, bodyType, truckSize, manpower,
-        noOfLabours, materialValue, additionalNotes, ebayBillUrl, transportMode, coolingType
+        noOfLabours, materialValue, additionalNotes, ebayBillUrl, transportMode,coolingType
     } = formData;
 
     return (
-
+          
         <motion.div layout className="bg-white border border-black/10 shadow-sm rounded-xl">
             <motion.div layout className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6 cursor-pointer p-4" onClick={() => setExpanded(!expanded)}>
                 <div>
-                    <h2 className="text-base font-semibold text-headings">{`SHID${id}`} • {pickupAddressLine2}, {pickupState} → {dropAddressLine2}, {dropState}</h2>
+                    <h2 className="text-base font-semibold text-headings">{pickupAddressLine2}, {pickupState} → {dropAddressLine2}, {dropState}</h2>
                     <p className="text-xs text-text/70">{materialType === 'custom' ? customMaterialType : materialType} • Pickup: {expectedPickupDate}</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -87,7 +81,7 @@ const ShipmentCard = ({ req }) => {
                                 <DetailItem icon={<Scale size={14} />} label="Weight" value={`${weightKg} kg`} />
                                 <DetailItem icon={<Ruler size={14} />} label="Dimensions" value={`${lengthFt} x ${widthFt} x ${heightFt} ft`} />
                             </DetailSection>
-
+                            
                             <DetailSection title="Logistics & Value">
                                 <DetailItem icon={<Truck size={14} />} label="Vehicle" value={`${truckSize} (${bodyType})`} />
                                 {bodyType === 'Closed' && (
@@ -99,18 +93,17 @@ const ShipmentCard = ({ req }) => {
                                 <DetailItem icon={<Calendar size={14} />} label="Expected Delivery" value={expectedDeliveryDate} />
                                 <DetailItem icon={<FileText size={14} />} label="Additional Notes" value={additionalNotes} />
                                 <DetailItem icon={<DollarSign size={14} />} label="Material Value" value={`₹${materialValue?.toLocaleString('en-IN')}`} />
-                                {cost && <DetailItem icon={<DollarSign size={14} />} label="Total Cost" value={`₹${cost.toLocaleString('en-IN')}`} />}
                             </DetailSection>
 
-                            {/* {ebayBillUrl && (
+                            {ebayBillUrl && (
                                 <DetailSection title="Documents">
                                     <a href={ebayBillUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-interactive font-semibold text-sm hover:underline">
                                         <Download size={14} />
                                         View Attached Bill
                                     </a>
                                 </DetailSection>
-                            )} */}
-                            {(status == 'REQUESTED' || status == 'OFFER_SENT') && (
+                            )}
+                            {(status== 'REQUESTED' || status == 'OFFER_SENT') && (
                                 <div className="pt-4 flex justify-end">
                                     <Button variant="outline" size="sm" onClick={() => setModifying(!modifying)}>
                                         <Edit size={14} className="mr-2" />
@@ -122,7 +115,7 @@ const ShipmentCard = ({ req }) => {
                             <AnimatePresence>
                                 {modifying && (
                                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                                        <ModificationRequest
+                                        <ModificationRequest 
                                             req={formData}
                                             setModifying={setModifying}
                                             modifying={modifying}
@@ -139,38 +132,48 @@ const ShipmentCard = ({ req }) => {
 };
 
 
+
 // --- Main Page Component ---
-export const ShipmentRequestsPage = ({ requests }) => {
+export const GetModificationRequests = () => {
     const [formData, setFormData] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        async function fetchData() {
-            setLoading(true);
+        setLoading(true);
+        // Fetch modification requests from the API
+        const fetchModificationRequests = async () => {
             try {
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/api/shipment/get-all-for-shipper`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`
-                        }
-                    }
-                );
-                setFormData(response.data.shipments);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/modification/requests`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+                setFormData(response.data.modifications);
+                console.log(response.data.modifications);
             } catch (error) {
-                console.error("Error fetching shipment data:", error);
+                console.error('Error fetching modification requests:', error);
             } finally {
                 setLoading(false);
             }
-        }
-        fetchData();
+        };
+
+        fetchModificationRequests();
     }, []);
-    if (loading) return (<>Loading...</>)
+    useEffect(() => {
+        console.log("Updated formData:", formData);
+    }, [formData]);
+
+
+
+
+    if (loading) return <div>Loading...</div>;
+    if (!formData) return <div>Loading...</div>;
+
     return (
         <div className="space-y-4">
             {formData && formData.length > 0 ? (
                 formData.map((req) => (
-                    <ShipmentCard key={req.id} req={req} />
+                    <GetModificationRequestsCard key={req.id} req={req} />
                 ))
             ) : (
                 <div className="text-center py-12 text-text/70 bg-background rounded-lg border border-black/5">
@@ -180,4 +183,4 @@ export const ShipmentRequestsPage = ({ requests }) => {
         </div>
     );
 };
-
+      

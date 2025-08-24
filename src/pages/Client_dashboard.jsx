@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, Users, X,Edit , Plus,ChevronDown , BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,56 +6,64 @@ import axios from 'axios';
 import { useRef } from 'react';
 import {ShipmentRequestForm} from '../components/CreateShipment'
 import {ShipmentRequestsPage} from '../components/ShipmentRequestPage';
+import { useNavigate } from "react-router-dom";
+import ProfilePage from '../components/ProfilePage'
+import  {GetModificationRequests}  from '@/components/GetModificationRequests';
+import { OffersPage } from '../components/OfferRequests'; // <--- 1. IMPORT THE NEW COMPONENT
 
 // --- MOCK DATA (Shipper Only) ---
-const shipperData = {
-  user: { name: 'Priya Sharma', company: 'Indus Enterprises' },
-  requests: [
-  {
-    id: 1,
-    shipperId: 22,
-    pickupAddressLine2: "Vadodara",
-    dropAddressLine2: "Indore",
-    pickupAddressLine1: "Sayajigunj",
-    pickupState: "Uttar Pradesh",
-    pickupPincode: "390001",
-    dropAddressLine1: "Rajendra Nagar",
-    dropState: "Madhya Pradesh",
-    dropPincode: "452001",
-    expectedPickupDate: "2025-08-16",
-    expectedDeliveryDate: "2025-08-20",
-    materialType: "Others",
-    customMaterialType:"Bomb",
-    weightKg: 1200,
-    lengthFt: 18,
-    widthFt: 7,
-    heightFt: 6,
-    truckSize: "19",
-    bodyType: "Closed",
-    shipmentType: "FTL",
-    noOfLabours: 5,
-    manpower: "yes",
-    transportMode: "Road Transport",
-    coolingType: "Ambient temperature/Non-Refrigerated",
-    materialValue: 500000,
-    additionalNotes: "Handle with extreme care. Flammable.",
-    status: "REQUESTED"
-  }
-],
-  status: [
-    { id: 'SH001', route: 'Mumbai → Delhi', progress: 65, delivery: '20 Aug, 2025', status: 'in-transit' },
-    { id: 'SH004', route: 'Bengaluru → Chennai', progress: 10, delivery: '22 Aug, 2025', status: 'pickup-scheduled' },
-    { id: 'SH005', route: 'Pune → Hyderabad', progress: 95, delivery: '19 Aug, 2025', status: 'out-for-delivery' },
-  ],
-  billing: {
-    summary: { pending: '₹3.5 Lakhs', paid: '₹2.3 Lakhs', overdue: '₹1.8 Lakhs' },
-    invoices: [
-      { id: 'INV001', amount: '₹3.5 Lakhs', status: 'pending', dueDate: '14 Sep, 2025' },
-      { id: 'INV002', amount: '₹2.3 Lakhs', status: 'paid', dueDate: '09 Sep, 2025' },
-      { id: 'INV003', amount: '₹1.8 Lakhs', status: 'overdue', dueDate: '04 Sep, 2025' },
-    ],
-  },
-};
+
+
+
+
+// const shipperData = {
+//   user: { name: 'Priya Sharma', company: 'Indus Enterprises' },
+//   requests: [
+//   {
+//     id: 1,
+//     shipperId: 22,
+//     pickupAddressLine2: "Vadodara",
+//     dropAddressLine2: "Indore",
+//     pickupAddressLine1: "Sayajigunj",
+//     pickupState: "Uttar Pradesh",
+//     pickupPincode: "390001",
+//     dropAddressLine1: "Rajendra Nagar",
+//     dropState: "Madhya Pradesh",
+//     dropPincode: "452001",
+//     expectedPickupDate: "2025-08-16",
+//     expectedDeliveryDate: "2025-08-20",
+//     materialType: "Others",
+//     customMaterialType:"Bomb",
+//     weightKg: 1200,
+//     lengthFt: 18,
+//     widthFt: 7,
+//     heightFt: 6,
+//     truckSize: "19",
+//     bodyType: "Closed",
+//     shipmentType: "FTL",
+//     noOfLabours: 5,
+//     manpower: "yes",
+//     transportMode: "Road Transport",
+//     coolingType: "Ambient temperature/Non-Refrigerated",
+//     materialValue: 500000,
+//     additionalNotes: "Handle with extreme care. Flammable.",
+//     status: "REQUESTED"
+//   }
+// ],
+//   status: [
+//     { id: 'SH001', route: 'Mumbai → Delhi', progress: 65, delivery: '20 Aug, 2025', status: 'in-transit' },
+//     { id: 'SH004', route: 'Bengaluru → Chennai', progress: 10, delivery: '22 Aug, 2025', status: 'pickup-scheduled' },
+//     { id: 'SH005', route: 'Pune → Hyderabad', progress: 95, delivery: '19 Aug, 2025', status: 'out-for-delivery' },
+//   ],
+//   billing: {
+//     summary: { pending: '₹3.5 Lakhs', paid: '₹2.3 Lakhs', overdue: '₹1.8 Lakhs' },
+//     invoices: [
+//       { id: 'INV001', amount: '₹3.5 Lakhs', status: 'pending', dueDate: '14 Sep, 2025' },
+//       { id: 'INV002', amount: '₹2.3 Lakhs', status: 'paid', dueDate: '09 Sep, 2025' },
+//       { id: 'INV003', amount: '₹1.8 Lakhs', status: 'overdue', dueDate: '04 Sep, 2025' },
+//     ],
+//   },
+// };
 
 // --- HELPER & DASHBOARD PAGE COMPONENTS ---
 
@@ -63,8 +71,8 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
   const navItems = [
     { name: 'Profile', icon: <User size={18} /> },
     { name: 'Requests', icon: <Plus size={18} /> },
-    { name: 'Status', icon: <BarChart2 size={18} /> },
-    { name: 'Billing', icon: <FileText size={18} /> },
+    { name: 'Offers', icon: <DollarSign size={18} /> },
+    { name: 'Modification Requests', icon: <Edit size={18} /> },
   ];
 
   return (
@@ -136,80 +144,76 @@ const StatusBadge = ({ status }) => {
 };
 
 
-// --- PAGE CONTENT COMPONENTS ---
-
-
-const ShipmentStatusPage = ({ statuses }) => (
-  <div className="space-y-4">
-    {statuses.map(item => (
-      <div key={item.id} className="bg-white border border-black/5 rounded-lg p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-          <p className="font-semibold text-headings">{item.route}</p>
-          <StatusBadge status={item.status} />
-        </div>
-        <div className="w-full bg-black/10 rounded-full h-2"><div className="bg-interactive h-2 rounded-full" style={{ width: `${item.progress}%` }}></div></div>
-        <div className="flex justify-between text-sm text-text/70 mt-2">
-          <span>Progress: {item.progress}%</span>
-          <span>Est. Delivery: {item.delivery}</span>
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const BillingPage = ({ billing }) => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <StatCard title="Pending" value={billing.summary.pending} icon={<DollarSign />} color="interactive" />
-      <StatCard title="Overdue" value={billing.summary.overdue} icon={<DollarSign />} color="red" />
-      <StatCard title="Paid" value={billing.summary.paid} icon={<DollarSign />} color="green" />
-    </div>
-    <div>
-      <h3 className="text-lg font-bold text-headings mb-4">Invoices</h3>
-      <div className="space-y-3">
-        {billing.invoices.map(inv => (
-          <div key={inv.id} className="bg-white border border-black/5 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <p className="font-semibold text-headings">Invoice {inv.id}</p>
-              <p className="text-sm text-text/70">Due: {inv.dueDate}</p>
-            </div>
-            <div className="flex items-center gap-4 self-end sm:self-center">
-              <span className="text-sm font-medium text-text">{inv.amount}</span>
-              <StatusBadge status={inv.status} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-
-
 // --- MAIN DASHBOARD EXPORT ---
 export default function ShipperDashboard() {
-  const [activeView, setActiveView] = useState('Requests');
+  const [loading, setLoading] = useState(true);       // token check
+  const [activeView, setActiveView] = useState("Profile");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [shipperData, setShipperData] = useState({
+    user: { name: "", company: "" },
+  });
+
+  const navigate = useNavigate();
+
+useEffect(() => {
+  const verifyAndFetch = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/sign-in");
+        return;
+      }
+
+      const config = { headers: { authorization: `Bearer ${token}` } };
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/shipper/verify`,
+        config
+      );
+
+      if (res.status !== 200) {
+        navigate("/sign-in");
+        return;
+      }
+      setShipperData((prev) => ({
+        ...prev,
+        user: res.data.shipperProfile,
+      }));
+      console.log("Shipper verified:", res.data);
+
+    } catch (error) {
+      console.error("Auth or data fetch error:", error);
+      if (error.response?.status === 401) {
+        navigate("/sign-in");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  verifyAndFetch();
+}, [navigate]);
+
+  // loader handling
+  if (loading) return <div>Loading...</div>;
 
   const renderContent = () => {
     switch (activeView) {
       case 'Requests':
-        return <ShipmentRequestsPage requests={shipperData.requests} />;
-      case 'Status':
-        return <ShipmentStatusPage statuses={shipperData.status} />;
-      case 'Billing':
-        return <BillingPage billing={shipperData.billing} />;
+        return <ShipmentRequestsPage />;
+      case 'Modification Requests':
+        return <GetModificationRequests />;
       case 'New Request':
         return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
       case 'Profile':
-        return <div>Profile Page Content</div>;
+        return <ProfilePage user={shipperData.user} />;
       case 'Modification Requests':
         return <div>Modification Requests Page Content</div>;
-      default:
-        return <ShipmentRequestsPage requests={shipperData.requests} />;
+      case 'Offers':
+        return <OffersPage />;
     }
   };
-
+  if(loading) return <div>Loading...</div>;
   return (
     <div className="relative md:flex bg-background font-sans min-h-screen">
       <Sidebar activePage={activeView} setActivePage={setActiveView} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />

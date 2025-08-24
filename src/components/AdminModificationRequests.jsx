@@ -6,15 +6,13 @@ import { ModificationRequest } from './ModificationRequest';
 import axios from 'axios'
 const StatusBadge = ({ status }) => {
     const styles = {
-        CONFIRMED: 'bg-green-500/10 text-green-600',
-        PENDING: 'bg-yellow-500/10 text-yellow-600',
+        Approved: 'bg-green-500/10 text-green-600',
+        Pending: 'bg-yellow-500/10 text-yellow-600',
         REQUESTED: 'bg-interactive/10 text-interactive',
         OFFER_SENT: 'bg-purple-500/10 text-purple-600',
     };
     return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${styles[status] || 'bg-black/10 text-text'}`}>{status.replace('_', ' ')}</span>;
 };
-
-
 
 const DetailItem = ({ icon, label, value }) => (
     <div>
@@ -42,23 +40,42 @@ const ShipmentCard = ({ req }) => {
     const [modifying, setModifying] = useState(false);
     const [formData, setFormData] = useState({ ...req });
 
+
+
     // Destructure all the new fields from the req prop for cleaner access
-    const {
-        id, cost,
+    const { id, shipmentId,
         status, pickupAddressLine2, dropAddressLine2, pickupState, dropState,
         materialType, expectedPickupDate, expectedDeliveryDate, pickupAddressLine1,
         pickupPincode, dropAddressLine1, dropPincode, weightKg, lengthFt, customMaterialType,
         widthFt, heightFt, bodyType, truckSize, manpower,
         noOfLabours, materialValue, additionalNotes, ebayBillUrl, transportMode, coolingType
     } = formData;
+    console.log(id)
+
+
+    const handleApprove = async () => {
+        try {
+            const response = await axios.put(
+                `${import.meta.env.VITE_API_URL}/api/modification/confirm`, { action: "accept", requestId: id }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+            }
+            );
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
 
     return (
 
         <motion.div layout className="bg-white border border-black/10 shadow-sm rounded-xl">
             <motion.div layout className="flex flex-wrap items-center justify-between gap-y-3 gap-x-6 cursor-pointer p-4" onClick={() => setExpanded(!expanded)}>
                 <div>
-                    <h2 className="text-base font-semibold text-headings">{`SHID${id}`} • {pickupAddressLine2}, {pickupState} → {dropAddressLine2}, {dropState}</h2>
-                    <p className="text-xs text-text/70">{materialType === 'custom' ? customMaterialType : materialType} • Pickup: {expectedPickupDate}</p>
+                    <h2 className="text-base font-semibold text-headings">{`SHID${shipmentId}`} • {pickupAddressLine2}, {pickupState} → {dropAddressLine2}, {dropState}</h2>
+                    <p className="text-xs text-text/70">{`MFID${id} • ${materialType === 'custom' ? customMaterialType : materialType} • Pickup: ${expectedPickupDate}`}</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <StatusBadge status={status} />
@@ -99,22 +116,23 @@ const ShipmentCard = ({ req }) => {
                                 <DetailItem icon={<Calendar size={14} />} label="Expected Delivery" value={expectedDeliveryDate} />
                                 <DetailItem icon={<FileText size={14} />} label="Additional Notes" value={additionalNotes} />
                                 <DetailItem icon={<DollarSign size={14} />} label="Material Value" value={`₹${materialValue?.toLocaleString('en-IN')}`} />
-                                {cost && <DetailItem icon={<DollarSign size={14} />} label="Total Cost" value={`₹${cost.toLocaleString('en-IN')}`} />}
                             </DetailSection>
 
-                            {/* {ebayBillUrl && (
+                            {ebayBillUrl && (
                                 <DetailSection title="Documents">
                                     <a href={ebayBillUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-interactive font-semibold text-sm hover:underline">
                                         <Download size={14} />
                                         View Attached Bill
                                     </a>
                                 </DetailSection>
-                            )} */}
-                            {(status == 'REQUESTED' || status == 'OFFER_SENT') && (
-                                <div className="pt-4 flex justify-end">
-                                    <Button variant="outline" size="sm" onClick={() => setModifying(!modifying)}>
-                                        <Edit size={14} className="mr-2" />
-                                        {modifying ? "Cancel Modification" : "Modify Request"}
+                            )}
+                            {(status == 'pending') && (
+                                <div className="pt-4 flex justify-end gap-2">
+                                    <Button variant="outline" size="sm" className={"bg-red-500 "} >
+                                        <Edit size={14} className="mr-2" /> Reject Modification
+                                    </Button>
+                                    <Button variant="outline" size="sm" className={"bg-green-500 "} onClick={handleApprove}>
+                                        <Edit size={14} className="mr-2" /> Approve Modification
                                     </Button>
                                 </div>
                             )}
@@ -140,7 +158,7 @@ const ShipmentCard = ({ req }) => {
 
 
 // --- Main Page Component ---
-export const ShipmentRequestsPage = ({ requests }) => {
+export const AdminModificationRequests = () => {
     const [formData, setFormData] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -148,15 +166,17 @@ export const ShipmentRequestsPage = ({ requests }) => {
         async function fetchData() {
             setLoading(true);
             try {
+
                 const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/api/shipment/get-all-for-shipper`,
+                    `${import.meta.env.VITE_API_URL}/api/modification/all-requests`,
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`
                         }
                     }
                 );
-                setFormData(response.data.shipments);
+                console.log(response)
+                setFormData(response.data.modifications);
             } catch (error) {
                 console.error("Error fetching shipment data:", error);
             } finally {

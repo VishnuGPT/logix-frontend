@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Menu, Users, X,Edit , Plus,ChevronDown , BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, XCircle } from 'lucide-react';
+import { User, Menu, Users, X, Edit, Plus, ChevronDown, BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, XCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { useRef } from 'react';
@@ -15,7 +15,7 @@ const indianStates = [
 
 const materialTypes = ['Electronics & Technology', 'Automotive Parts', 'Machinery & Equipment', 'Textiles & Clothing', 'Food & Beverages', 'Pharmaceuticals', 'Chemicals', 'Raw Materials', 'Construction Materials', 'Furniture & Home Goods', 'Books & Documents', 'Hazardous Materials', 'Fragile Items', 'Perishable Goods', 'Others'];
 const transportModes = ['Road Transport', 'Rail Transport', 'Air Transport', 'Sea Transport', 'Intermodal'];
-const coolingType = ['Ambient temperature/Non-Refrigerated', 'Refrigerated Frozen temprature', 'Refrigerated Chiller'];
+const coolingType = ['Ambient temperature/Non-Refrigerated', 'Refrigerated Frozen temperature', 'Refrigerated Chiller'];
 const truckSize = ['14 ft', '17 ft', '19 ft', '20 ft', '22 ft', '24 ft', '32 ft', '40 ft'];
 
 
@@ -42,6 +42,8 @@ const RequestPreview = ({ formData, onEdit, onConfirm }) => {
     </div>
   );
 
+
+
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 space-y-6">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4">
@@ -67,8 +69,10 @@ const RequestPreview = ({ formData, onEdit, onConfirm }) => {
 
         {/* Schedule */}
         <PreviewSection title="Schedule" icon={<Calendar size={18} className="text-green-600" />}>
-          <DetailItem label="Expected Pickup Date" value={renderValue(formData.expectedPickup)} />
-          <DetailItem label="Expected Delivery Date" value={renderValue(formData.expectedDelivery)} />
+          <DetailItem label="Expected Pickup Date" 
+            value={renderValue(formData.expectedPickup)} />
+          <DetailItem label="Expected Delivery Date" 
+            value={renderValue(formData.expectedDelivery)} />
         </PreviewSection>
 
         {/* Cargo Details */}
@@ -87,8 +91,8 @@ const RequestPreview = ({ formData, onEdit, onConfirm }) => {
             />
           )}
           <DetailItem label="Material Value" value={renderValue(`₹${formData.materialValue}`)} />
-          {formData.description && (
-            <DetailItem label="Description" value={renderValue(formData.description)} />
+          {formData.additionalNotes && (
+            <DetailItem label="Additional Notes" value={renderValue(formData.additionalNotes)} />
           )}
         </PreviewSection>
 
@@ -120,7 +124,7 @@ const RequestPreview = ({ formData, onEdit, onConfirm }) => {
         <Button variant="outline" onClick={onEdit} className="flex-1 sm:flex-none sm:w-1/3 hover:cursor-pointer">
           <Edit3 size={16} className="mr-2 " /> Edit Details
         </Button>
-        <Button onClick={onConfirm}  className="flex-1 bg-[#d8315b] sm:flex-none sm:w-2/3 hover:cursor-pointer">
+        <Button onClick={onConfirm} className="flex-1 bg-[#d8315b] sm:flex-none sm:w-2/3 hover:cursor-pointer">
           <CheckCircle size={16} className="mr-2 " /> Confirm & Submit Request
         </Button>
       </div>
@@ -156,6 +160,9 @@ export const ShipmentRequestForm = ({ onComplete }) => {
     weight: "",
     materialValue: "",
     additionalNotes: "",
+    length: "",
+    width: "",
+    height: "",
 
     // Schedule
     expectedPickup: "",
@@ -167,16 +174,137 @@ export const ShipmentRequestForm = ({ onComplete }) => {
     coolingType: "",
 
     // File
-    ebayBill: null,
+    ewayBill: null,
   });
+
+  // Validation state
+  const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  // Validation functions
+  const validatePincode = (pincode) => {
+    if (!pincode) return "Pincode is required";
+    if (!/^\d{6}$/.test(pincode)) return "Pincode must be exactly 6 digits";
+    return null;
+  };
+
+  const validatePickupDate = (date) => {
+    if (!date) return "Pickup date is required";
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const pickupDate = new Date(date);
+    if (pickupDate <= today) return "Pickup date must be in the future";
+    return null;
+  };
+
+  const validateDeliveryDate = (pickupDate, deliveryDate) => {
+    if (!deliveryDate) return "Delivery date is required";
+    if (!pickupDate) return "Please select pickup date first";
+    const pickup = new Date(pickupDate);
+    const delivery = new Date(deliveryDate);
+    if (delivery <= pickup) return "Delivery date must be after pickup date";
+    return null;
+  };
+
+  // Validate form on every change
+  useEffect(() => {
+    const newErrors = {};
+
+    // Validate pickup pincode
+    const pickupPincodeError = validatePincode(formData.pickupPincode);
+    if (pickupPincodeError) newErrors.pickupPincode = pickupPincodeError;
+
+    // Validate drop pincode
+    const dropPincodeError = validatePincode(formData.dropPincode);
+    if (dropPincodeError) newErrors.dropPincode = dropPincodeError;
+
+    // Validate pickup date
+    const pickupDateError = validatePickupDate(formData.expectedPickup);
+    if (pickupDateError) newErrors.expectedPickup = pickupDateError;
+
+    // Validate delivery date
+    const deliveryDateError = validateDeliveryDate(formData.expectedPickup, formData.expectedDelivery);
+    if (deliveryDateError) newErrors.expectedDelivery = deliveryDateError;
+
+    // Validate weight
+    if (formData.weight && parseFloat(formData.weight) <= 0) {
+      newErrors.weight = "Weight must be greater than 0";
+    }
+
+    // Validate material value
+    if (formData.materialValue && parseFloat(formData.materialValue) <= 0) {
+      newErrors.materialValue = "Material value must be greater than 0";
+    }
+
+    // Validate number of labours
+    if (formData.noOfLabours && parseInt(formData.noOfLabours) <= 0) {
+      newErrors.noOfLabours = "Number of labours must be greater than 0";
+    }
+
+    // Check if all required fields are filled
+    const requiredFields = [
+      'pickupAddressLine1', 'pickupAddressLine2', 'pickupState', 'pickupPincode',
+      'dropAddressLine1', 'dropAddressLine2', 'dropState', 'dropPincode',
+      'shipmentType', 'materialType', 'bodyType', 'manpower', 'weight',
+      'materialValue', 'expectedPickup', 'expectedDelivery', 'transportMode'
+    ];
+
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    if (missingFields.length > 0) {
+      newErrors.required = "Please fill in all required fields";
+    }
+
+    // Check if material type is "Others" but custom type is not provided
+    if (formData.materialType === 'Others' && !formData.customMaterialType) {
+      newErrors.customMaterialType = "Please specify the material type";
+    }
+
+    // Check if manpower is "yes" but number of labours is not provided
+    if (formData.manpower === 'yes' && !formData.noOfLabours) {
+      newErrors.noOfLabours = "Please specify number of labours";
+    }
+
+    // Check if body type is "Closed" but cooling type is not selected
+    if (formData.bodyType === 'Closed' && !formData.coolingType) {
+      newErrors.coolingType = "Please select cooling type for closed body";
+    }
+
+    // Check if transport mode is "Road Transport" but truck size is not selected
+    if (formData.transportMode === 'Road Transport' && !formData.truckSize) {
+      newErrors.truckSize = "Please select truck size for road transport";
+    }
+
+    setErrors(newErrors);
+
+    // Form is valid if no errors and all required fields are filled
+    const hasNoErrors = Object.keys(newErrors).length === 0;
+    const allRequiredFilled = requiredFields.every(field => formData[field]);
+    const conditionalFieldsValid = 
+      (formData.materialType !== 'Others' || formData.customMaterialType) &&
+      (formData.manpower !== 'yes' || formData.noOfLabours) &&
+      (formData.bodyType !== 'Closed' || formData.coolingType) &&
+      (formData.transportMode !== 'Road Transport' || formData.truckSize);
+
+    setIsFormValid(hasNoErrors && allRequiredFilled && conditionalFieldsValid);
+  }, [formData]);
 
   // handlers -----------------
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    
+    // Special handling for pincode fields - only allow numbers
+    if (name === 'pickupPincode' || name === 'dropPincode') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      setFormData((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
   // file upload
@@ -185,14 +313,14 @@ export const ShipmentRequestForm = ({ onComplete }) => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
-      setFormData((prev) => ({ ...prev, ebayBill: file }));
+      setFormData((prev) => ({ ...prev, ewayBill: file }));
     } else {
       alert("Only PDF files are allowed");
     }
   };
 
   const removeFile = () => {
-    setFormData((prev) => ({ ...prev, ebayBill: null }));
+    setFormData((prev) => ({ ...prev, ewayBill: null }));
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
@@ -222,19 +350,20 @@ export const ShipmentRequestForm = ({ onComplete }) => {
         dropPincode: formData.dropPincode,
 
         shipmentType: formData.shipmentType,
-        materialType:
-          formData.materialType === "Others"
-            ? formData.customMaterialType
-            : formData.materialType,
+        materialType: formData.materialType,
+        customMaterialType: formData.materialType === "Others" ? formData.customMaterialType : null,
         bodyType: formData.bodyType,
         manpower: formData.manpower,
         noOfLabours: formData.manpower === "yes" ? formData.noOfLabours : "0",
         weight: formData.weight,
+        length: formData.length,
+        width: formData.width,
+        height: formData.height,
         materialValue: formData.materialValue,
-        description: formData.description,
+        additionalNotes: formData.additionalNotes,
 
-        expectedPickup: formData.expectedPickup,
-        expectedDelivery: formData.expectedDelivery,
+        expectedPickupDate: formData.expectedPickup,
+        expectedDeliveryDate: formData.expectedDelivery,
 
         transportMode: formData.transportMode,
         truckSize: formData.truckSize,
@@ -246,12 +375,13 @@ export const ShipmentRequestForm = ({ onComplete }) => {
       );
 
       // append file
-      if (formData.ebayBill) {
-        formDataToSend.append("ebayBill", formData.ebayBill);
+      if (formData.ewayBill) {
+        formDataToSend.append("ewayBill", formData.ewayBill);
       }
+      console.log("Form data to send:", formDataToSend);
 
       // send request
-      const response = await fetch("http://localhost:5000/api/requests", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/shipment/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -283,13 +413,13 @@ export const ShipmentRequestForm = ({ onComplete }) => {
         noOfLabours: "",
         weight: "",
         materialValue: "",
-        description: "",
+        additionalNotes: "",
         expectedPickup: "",
         expectedDelivery: "",
         transportMode: "",
         truckSize: "",
         coolingType: "",
-        ebayBill: null,
+        ewayBill: null,
       }); // reset
       onComplete();
     } catch (error) {
@@ -314,6 +444,37 @@ export const ShipmentRequestForm = ({ onComplete }) => {
         <div className="border-b pb-6 mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Request Shipment</h2>
           <p className="text-gray-600">Fill in the details to issue a request</p>
+          
+          {/* Validation Status */}
+          <div className="mt-4 p-4 rounded-lg border-2 bg-gray-50">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-gray-700">Form Validation Status</span>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                isFormValid 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-amber-100 text-amber-800'
+              }`}>
+                {isFormValid ? 'Ready to Submit' : 'Validation Required'}
+              </span>
+            </div>
+            
+            {isFormValid ? (
+              <div className="flex items-center text-green-600">
+                <CheckCircle className="w-5 h-5 mr-2" />
+                <span className="font-medium">All validations passed! You can proceed to preview your shipment request.</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center text-amber-600">
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                  <span className="font-medium">Please complete all required fields and fix validation errors to proceed.</span>
+                </div>
+                {errors.required && (
+                  <p className="text-red-600 text-sm ml-7">{errors.required}</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Pickup and Drop Location Fields */}
@@ -327,7 +488,22 @@ export const ShipmentRequestForm = ({ onComplete }) => {
               <option value="">Select State</option>
               {indianStates.map(state => <option key={state} value={state}>{state}</option>)}
             </select>
-            <input type="text" name="pickupPincode" value={formData.pickupPincode} onChange={handleInputChange} placeholder="Pincode" className="w-full px-4 py-3 border border-gray-300 rounded-lg" required />
+            <input 
+              type="text" 
+              name="pickupPincode" 
+              value={formData.pickupPincode} 
+              onChange={handleInputChange} 
+              placeholder="Pincode" 
+              maxLength="6"
+              pattern="[0-9]*"
+              className={`w-full px-4 py-3 border rounded-lg transition-colors ${
+                errors.pickupPincode ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+              }`} 
+              required 
+            />
+            {errors.pickupPincode && (
+              <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.pickupPincode}</p>
+            )}
           </div>
 
           {/* Drop Address */}
@@ -339,7 +515,22 @@ export const ShipmentRequestForm = ({ onComplete }) => {
               <option value="">Select State</option>
               {indianStates.map(state => <option key={state} value={state}>{state}</option>)}
             </select>
-            <input type="text" name="dropPincode" value={formData.dropPincode} onChange={handleInputChange} placeholder="Pincode" className="w-full px-4 py-3 border border-gray-300 rounded-lg" required />
+            <input 
+              type="text" 
+              name="dropPincode" 
+              value={formData.dropPincode} 
+              onChange={handleInputChange} 
+              placeholder="Pincode" 
+              maxLength="6"
+              pattern="[0-9]*"
+              className={`w-full px-4 py-3 border rounded-lg transition-colors ${
+                errors.dropPincode ? 'border-red-500 focus:border-red-500' : 'border-gray-500 focus:border-blue-500'
+              }`} 
+              required 
+            />
+            {errors.dropPincode && (
+              <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.dropPincode}</p>
+            )}
           </div>
         </div>
 
@@ -354,10 +545,28 @@ export const ShipmentRequestForm = ({ onComplete }) => {
             {formData.materialType === 'Others' && (
               <input type="text" name="customMaterialType" value={formData.customMaterialType} onChange={handleInputChange} className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-lg" placeholder="Please specify" required />
             )}
+            {errors.customMaterialType && (
+              <p className="text-red-500 text-xs mt-1"><AlertCircle className="w-4 h-4 mr-1" /> {errors.customMaterialType}</p>
+            )}
           </div>
           <div className="space-y-2">
             <label className="flex items-center text-sm font-medium text-gray-700"><Scale className="w-4 h-4 mr-2 text-purple-600" />Weight (kg) *</label>
-            <input type="number" name="weight" value={formData.weight} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Enter weight in kg" min="0" step="0.1" required />
+            <input 
+              type="number" 
+              name="weight" 
+              value={formData.weight} 
+              onChange={handleInputChange} 
+              className={`w-full px-4 py-3 border rounded-lg transition-colors ${
+                errors.weight ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+              }`}
+              placeholder="Enter weight in kg" 
+              min="0" 
+              step="0.1" 
+              required 
+            />
+            {errors.weight && (
+              <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.weight}</p>
+            )}
           </div>
         </div>
 
@@ -373,11 +582,33 @@ export const ShipmentRequestForm = ({ onComplete }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="flex items-center text-sm font-medium text-gray-700"><Calendar className="w-4 h-4 mr-2" />Expected Pickup Date *</label>
-            <input type="date" name="expectedPickup" value={formData.expectedPickup} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" required />
+            <input 
+              type="date" 
+              name="expectedPickup" 
+              value={formData.expectedPickup} 
+              onChange={handleInputChange} 
+              min={new Date().toISOString().split('T')[0]}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg" 
+              required 
+            />
+            {errors.expectedPickup && (
+              <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.expectedPickup}</p>
+            )}
           </div>
           <div className="space-y-2">
             <label className="flex items-center text-sm font-medium text-gray-700"><Calendar className="w-4 h-4 mr-2" />Expected Delivery Date *</label>
-            <input type="date" name="expectedDelivery" value={formData.expectedDelivery} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" required />
+            <input 
+              type="date" 
+              name="expectedDelivery" 
+              value={formData.expectedDelivery} 
+              onChange={handleInputChange} 
+              min={formData.expectedPickup || new Date().toISOString().split('T')[0]}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg" 
+              required 
+            />
+            {errors.expectedDelivery && (
+              <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.expectedDelivery}</p>
+            )}
           </div>
         </div>
 
@@ -403,18 +634,46 @@ export const ShipmentRequestForm = ({ onComplete }) => {
               <label className="flex items-center"><input type="radio" name="manpower" value="no" checked={formData.manpower === 'no'} onChange={handleInputChange} className="mr-2" required />No</label>
             </div>
           </div>
-          {formData.manpower === 'yes' && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Number of Labours *</label>
-              <input type="number" name="noOfLabours" value={formData.noOfLabours} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Enter number of labours" min="0" required />
-            </div>
-          )}
+                      {formData.manpower === 'yes' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Number of Labours *</label>
+                <input 
+                  type="number" 
+                  name="noOfLabours" 
+                  value={formData.noOfLabours} 
+                  onChange={handleInputChange} 
+                  className={`w-full px-4 py-3 border rounded-lg transition-colors ${
+                    errors.noOfLabours ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+                  }`}
+                  placeholder="Enter number of labours" 
+                  min="1" 
+                  required 
+                />
+                {errors.noOfLabours && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.noOfLabours}</p>
+                )}
+              </div>
+            )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Value of Material (₹) *</label>
-            <input type="number" name="materialValue" value={formData.materialValue} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Enter material value" min="0" required />
+            <input 
+              type="number" 
+              name="materialValue" 
+              value={formData.materialValue} 
+              onChange={handleInputChange} 
+              className={`w-full px-4 py-3 border rounded-lg transition-colors ${
+                errors.materialValue ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'
+              }`}
+              placeholder="Enter material value" 
+              min="0" 
+              required 
+            />
+            {errors.materialValue && (
+              <p className="text-red-500 text-xs mt-1 flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {errors.materialValue}</p>
+            )}
           </div>
           <div className="space-y-2">
             <label className="flex items-center text-sm font-medium text-gray-700"><Truck className="w-4 h-4 mr-2" />Mode of Transportation *</label>
@@ -430,22 +689,30 @@ export const ShipmentRequestForm = ({ onComplete }) => {
                 <option value="">Select truck size</option>
                 {truckSize.map((size) => <option key={size} value={size}>{size}</option>)}
               </select>
+              {errors.truckSize && (
+                <p className="text-red-500 text-xs mt-1"><AlertCircle className="w-4 h-4 mr-1" /> {errors.truckSize}</p>
+              )}
             </div>
           )}
-          <div className="space-y-2">
-            <label className="flex items-center text-sm font-medium text-gray-700">Vehicle Temperature *</label>
-            <select name="coolingType" value={formData.coolingType} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" required>
-              <option value="">Select temperature</option>
-              {coolingType.map((type) => <option key={type} value={type}>{type}</option>)}
-            </select>
-          </div>
+          {formData.bodyType === 'Closed' && (
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-medium text-gray-700">Vehicle Temperature *</label>
+              <select name="coolingType" value={formData.coolingType} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" required>
+                <option value="">Select temperature</option>
+                {coolingType.map((type) => <option key={type} value={type}>{type}</option>)}
+              </select>
+              {errors.coolingType && (
+                <p className="text-red-500 text-xs mt-1"><AlertCircle className="w-4 h-4 mr-1" /> {errors.coolingType}</p>
+              )}
+            </div>
+          )}
         </div>
         {/* additionalNotes */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Additional Notes</label>
           <textarea name="additionalNotes" value={formData.additionalNotes} onChange={handleInputChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Enter any additional notes" rows="4"></textarea>
         </div>
-        {/* (NEW) PDF Upload Section */}
+        {/* (NEW) PDF Upload Section
         <div className="space-y-2">
           <label className="flex items-center text-sm font-medium text-gray-700"><Upload className="w-4 h-4 mr-2" />eBay Bill (Optional PDF)</label>
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-interactive transition-colors">
@@ -474,12 +741,23 @@ export const ShipmentRequestForm = ({ onComplete }) => {
               )}
             </label>
           </div>
-        </div>
+        </div> */}
 
+        {errors.required && (
+          <p className="text-red-500 text-xs mt-1"><AlertCircle className="w-4 h-4 mr-1" /> {errors.required}</p>
+        )}
 
         <div className="pt-6">
-          <button type="submit" className="cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 transition-all transform hover:scale-105">
-            Preview Request
+          <button 
+            type="submit" 
+            className={`w-full py-4 px-6 rounded-lg font-semibold transition-all transform focus:ring-4 focus:ring-blue-300 ${
+              isFormValid 
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:scale-105 cursor-pointer' 
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            }`} 
+            disabled={!isFormValid}
+          >
+            {isFormValid ? 'Preview Request' : 'Complete Form to Continue'}
           </button>
         </div>
       </div>

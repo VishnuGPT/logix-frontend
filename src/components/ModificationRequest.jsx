@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MapPin, Package, Truck, FileText 
+import {
+  MapPin, Package, Truck, FileText
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -14,9 +14,9 @@ const indianStates = [
 ].sort();
 
 const materialTypes = [
-  'Electronics & Technology', 'Automotive Parts', 'Machinery & Equipment', 'Textiles & Clothing', 
-  'Food & Beverages', 'Pharmaceuticals', 'Chemicals', 'Raw Materials', 'Construction Materials', 
-  'Furniture & Home Goods', 'Books & Documents', 'Hazardous Materials', 'Fragile Items', 
+  'Electronics & Technology', 'Automotive Parts', 'Machinery & Equipment', 'Textiles & Clothing',
+  'Food & Beverages', 'Pharmaceuticals', 'Chemicals', 'Raw Materials', 'Construction Materials',
+  'Furniture & Home Goods', 'Books & Documents', 'Hazardous Materials', 'Fragile Items',
   'Perishable Goods', 'Others'
 ];
 
@@ -25,7 +25,13 @@ const coolingType = ['Ambient temperature/Non-Refrigerated', 'Refrigerated Froze
 const truckSize = ['14 ft', '17 ft', '19 ft', '20 ft', '22 ft', '24 ft', '32 ft', '40 ft'];
 
 export const ModificationRequest = ({ req, modifying, setModifying }) => {
-    const [formData, setFormData] = React.useState({ ...req });
+  const [formData, setFormData] = React.useState({
+    ...req,
+    shipmentId: req.id
+  });
+  console.log(req.id)
+  console.log(formData.coolingType)
+  console.log(formData.truckSize)
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -34,9 +40,11 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log(formData)
       const response = await axios.put(
-        `http://localhost:5000/api/shipments/${formData._id}`,
-        formData
+        `${import.meta.env.VITE_API_URL}/api/modification/modify-shipment`,
+        formData,
+        { headers: { authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
       console.log("Update successful:", response.data);
       setModifying(false);
@@ -171,20 +179,20 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <span className="block text-xs font-medium text-gray-600">Material Type</span>
                 <select
                   name="materialType"
-                  value={formData.materialType || ""}
+                  value={formData.materialType}
                   onChange={(e) => handleChange("materialType", e.target.value)}
                   className="w-full border rounded-md p-2"
-                >
+                > {console.log(formData.materialType)}
                   <option value="">Select material type</option>
                   {materialTypes.map(type => <option key={type} value={type}>{type}</option>)}
                 </select>
               </label>
               {formData.materialType === 'Others' && (
-                <label>
+                <label>{console.log(formData.customMaterialType)}
                   <span className="block text-xs font-medium text-gray-600">Custom Material Type</span>
                   <input
                     name="customMaterialType"
-                    value={formData.customMaterialType || ""}
+                    value={formData.customMaterialType}
                     onChange={(e) => handleChange("customMaterialType", e.target.value)}
                     placeholder="Please specify other material"
                     className="w-full border rounded-md p-2"
@@ -257,8 +265,8 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
               </label>
             </div>
           </div>
-          
-           {/* --- SECTION: LOGISTICS & SCHEDULE --- */}
+
+          {/* --- SECTION: LOGISTICS & SCHEDULE --- */}
           <div className="space-y-3">
             <label className="text-sm font-semibold text-gray-800 flex items-center gap-2">
               <Truck className="w-4 h-4 text-purple-600" />
@@ -302,7 +310,7 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                   <span className="block text-xs font-medium text-gray-600">Truck Size</span>
                   <select
                     name="truckSize"
-                    value={`${formData.truckSize} ft`|| ""}
+                    value={`${formData.truckSize}` || ""}
                     onChange={(e) => handleChange("truckSize", e.target.value)}
                     className="w-full border rounded-md p-2"
                   >
@@ -311,18 +319,20 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                   </select>
                 </label>
               )}
-              <label>
-                <span className="block text-xs font-medium text-gray-600">Temperature</span>
-                <select
-                  name="coolingType"
-                  value={formData.coolingType || ""}
-                  onChange={(e) => handleChange("coolingType", e.target.value)}
-                  className="w-full border rounded-md p-2"
-                >
-                  <option value="">Select Temperature</option>
-                  {coolingType.map(type => <option key={type} value={type}>{type}</option>)}
-                </select>
-              </label>
+              {formData.bodyType === 'Closed' && (
+                <label>
+                  <span className="block text-xs font-medium text-gray-600">Temperature</span>
+                  <select
+                    name="coolingType"
+                    value={formData.coolingType || ""}
+                    onChange={(e) => handleChange("coolingType", e.target.value)}
+                    className="w-full border rounded-md p-2"
+                  >
+                    <option value="">Select Temperature</option>
+                    {coolingType.map(type => <option key={type} value={type}>{type}</option>)}
+                  </select>
+                </label>
+              )}
             </div>
 
             {/* Radios */}
@@ -331,13 +341,13 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <label className="text-xs font-medium text-gray-500">Shipment Type</label>
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="shipmentType" value="PTL" 
-                      checked={formData.shipmentType === 'PTL'} 
+                    <input type="radio" name="shipmentType" value="PTL"
+                      checked={formData.shipmentType === 'PTL'}
                       onChange={(e) => handleChange("shipmentType", e.target.value)} /> PTL
                   </label>
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="shipmentType" value="FTL" 
-                      checked={formData.shipmentType === 'FTL'} 
+                    <input type="radio" name="shipmentType" value="FTL"
+                      checked={formData.shipmentType === 'FTL'}
                       onChange={(e) => handleChange("shipmentType", e.target.value)} /> FTL
                   </label>
                 </div>
@@ -346,13 +356,13 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <label className="text-xs font-medium text-gray-500">Body Type</label>
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="bodyType" value="Open" 
-                      checked={formData.bodyType === 'Open'} 
+                    <input type="radio" name="bodyType" value="Open"
+                      checked={formData.bodyType === 'Open'}
                       onChange={(e) => handleChange("bodyType", e.target.value)} /> Open
                   </label>
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="bodyType" value="Closed" 
-                      checked={formData.bodyType === 'Closed'} 
+                    <input type="radio" name="bodyType" value="Closed"
+                      checked={formData.bodyType === 'Closed'}
                       onChange={(e) => handleChange("bodyType", e.target.value)} /> Closed
                   </label>
                 </div>
@@ -361,13 +371,13 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
                 <label className="text-xs font-medium text-gray-500">Manpower</label>
                 <div className="flex gap-4 mt-1">
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="manpower" value="yes" 
-                      checked={formData.manpower === 'yes'} 
+                    <input type="radio" name="manpower" value="yes"
+                      checked={formData.manpower === 'yes'}
                       onChange={(e) => handleChange("manpower", e.target.value)} /> Yes
                   </label>
                   <label className="flex items-center gap-1">
-                    <input type="radio" name="manpower" value="no" 
-                      checked={formData.manpower === 'no'} 
+                    <input type="radio" name="manpower" value="no"
+                      checked={formData.manpower === 'no'}
                       onChange={(e) => handleChange("manpower", e.target.value)} /> No
                   </label>
                 </div>
@@ -403,8 +413,8 @@ export const ModificationRequest = ({ req, modifying, setModifying }) => {
             />
           </div>
 
-          
-          <button   
+
+          <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2.5 rounded-md font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors"
           >
