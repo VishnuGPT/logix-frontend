@@ -1,51 +1,84 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Menu, Users, X,Edit , Plus,ChevronDown , BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, XCircle } from 'lucide-react';
+import { User, Menu, X, Plus, ChevronDown, ChevronUp, BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Clipboard, Clock, AlertCircle, Phone, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
-import { useRef } from 'react';
-import {ShipmentRequestForm} from '../components/CreateShipment'
-import {ShipmentRequestsPage} from '../components/ShipmentRequestPage';
+// Assuming these are in separate files as per the original structure
+import { ShipmentRequestForm } from '../components/CreateShipment'; 
+import { ShipmentRequestsPage } from '../components/ShipmentRequestPage';
 
-// --- MOCK DATA (Shipper Only) ---
+// --- MOCK DATA (Augmented for Detailed Status View) ---
 const shipperData = {
   user: { name: 'Priya Sharma', company: 'Indus Enterprises' },
   requests: [
-  {
-    id: 1,
-    shipperId: 22,
-    pickupAddressLine2: "Vadodara",
-    dropAddressLine2: "Indore",
-    pickupAddressLine1: "Sayajigunj",
-    pickupState: "Uttar Pradesh",
-    pickupPincode: "390001",
-    dropAddressLine1: "Rajendra Nagar",
-    dropState: "Madhya Pradesh",
-    dropPincode: "452001",
-    expectedPickupDate: "2025-08-16",
-    expectedDeliveryDate: "2025-08-20",
-    materialType: "Others",
-    customMaterialType:"Bomb",
-    weightKg: 1200,
-    lengthFt: 18,
-    widthFt: 7,
-    heightFt: 6,
-    truckSize: "19",
-    bodyType: "Closed",
-    shipmentType: "FTL",
-    noOfLabours: 5,
-    manpower: "yes",
-    transportMode: "Road Transport",
-    coolingType: "Ambient temperature/Non-Refrigerated",
-    materialValue: 500000,
-    additionalNotes: "Handle with extreme care. Flammable.",
-    status: "REQUESTED"
-  }
-],
+    // ... existing request data
+  ],
+  // Updated status data to power the new detailed UI
   status: [
-    { id: 'SH001', route: 'Mumbai → Delhi', progress: 65, delivery: '20 Aug, 2025', status: 'in-transit' },
-    { id: 'SH004', route: 'Bengaluru → Chennai', progress: 10, delivery: '22 Aug, 2025', status: 'pickup-scheduled' },
-    { id: 'SH005', route: 'Pune → Hyderabad', progress: 95, delivery: '19 Aug, 2025', status: 'out-for-delivery' },
+    { 
+      id: 'SH001', 
+      route: 'Mumbai → Delhi', 
+      progress: 65, 
+      status: 'in-transit', 
+      expectedPickupDate: "2025-08-18",
+      expectedDeliveryDate: '20 Aug, 2025',
+      pickupAddressLine1: "Andheri East",
+      pickupAddressLine2: "Mumbai",
+      pickupPincode: "400069",
+      dropAddressLine1: "Connaught Place",
+      dropAddressLine2: "Delhi",
+      dropPincode: "110001",
+      weightKg: 5500,
+      lengthFt: 22,
+      widthFt: 8,
+      heightFt: 7,
+      truckSize: "22ft",
+      bodyType: "Open Body",
+      transportMode: "Road Transport",
+      materialType: "Electronics",
+      materialValue: 1200000,
+      // Timestamps to control the progress tracker
+      createdAt: "2025-08-17T10:00:00Z",
+      confirmedAt: "2025-08-17T14:30:00Z",
+      pickedUpAt: "2025-08-18T09:00:00Z",
+      inTransitAt: "2025-08-18T11:00:00Z",
+    },
+    { 
+      id: 'SH004', 
+      route: 'Bengaluru → Chennai', 
+      progress: 25, 
+      status: 'pickup-scheduled',
+      expectedPickupDate: "2025-08-21",
+      expectedDeliveryDate: '22 Aug, 2025',
+      pickupAddressLine1: "Koramangala",
+      pickupAddressLine2: "Bengaluru",
+      dropAddressLine1: "T. Nagar",
+      dropAddressLine2: "Chennai",
+      weightKg: 3000,
+      truckSize: "19ft",
+      bodyType: "Closed",
+      createdAt: "2025-08-20T18:00:00Z",
+      confirmedAt: "2025-08-21T08:00:00Z",
+    },
+    { 
+      id: 'SH005', 
+      route: 'Pune → Hyderabad', 
+      progress: 95, 
+      status: 'out-for-delivery',
+      expectedPickupDate: "2025-08-17",
+      expectedDeliveryDate: '19 Aug, 2025',
+      pickupAddressLine1: "Hinjewadi",
+      pickupAddressLine2: "Pune",
+      dropAddressLine1: "Gachibowli",
+      dropAddressLine2: "Hyderabad",
+      weightKg: 8000,
+      truckSize: "32ft",
+      bodyType: "Container",
+      createdAt: "2025-08-16T12:00:00Z",
+      confirmedAt: "2025-08-16T16:00:00Z",
+      pickedUpAt: "2025-08-17T10:00:00Z",
+      inTransitAt: "2025-08-17T12:30:00Z",
+      outForDeliveryAt: "2025-08-19T08:00:00Z",
+    },
   ],
   billing: {
     summary: { pending: '₹3.5 Lakhs', paid: '₹2.3 Lakhs', overdue: '₹1.8 Lakhs' },
@@ -105,8 +138,6 @@ const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick }) => (
   </header>
 );
 
-
-
 const StatCard = ({ title, value, icon, color }) => {
   const colors = {
     interactive: 'bg-interactive/10 text-interactive',
@@ -122,40 +153,169 @@ const StatCard = ({ title, value, icon, color }) => {
   );
 };
 
+
+// --- REBUILT ShipmentStatusPage WITH DYNAMIC UI ---
+
+const getProgressSteps = (shipment) => {
+  return [
+    { id: 'requested', label: 'Request Placed', icon: Clipboard, completed: !!shipment.createdAt, timestamp: shipment.createdAt },
+    { id: 'confirmed', label: 'Confirmed', icon: CheckCircle, completed: !!shipment.confirmedAt, timestamp: shipment.confirmedAt },
+    { id: 'pickup-scheduled', label: 'Pickup Scheduled', icon: Calendar, completed: !!shipment.confirmedAt, timestamp: shipment.expectedPickupDate},
+    { id: 'picked-up', label: 'Picked Up', icon: Package, completed: !!shipment.pickedUpAt, timestamp: shipment.pickedUpAt },
+    { id: 'in-transit', label: 'In Transit', icon: Truck, completed: !!shipment.inTransitAt, timestamp: shipment.inTransitAt },
+    { id: 'out-for-delivery', label: 'Out for Delivery', icon: Truck, completed: !!shipment.outForDeliveryAt, timestamp: shipment.outForDeliveryAt },
+    { id: 'delivered', label: 'Delivered', icon: CheckCircle, completed: shipment.status === 'delivered', timestamp: shipment.deliveredAt || shipment.expectedDeliveryDate },
+  ];
+};
+
+const ProgressTracker = ({ steps, currentProgress }) => {
+    // Find the index of the last completed step
+    const lastCompletedIndex = steps.map(step => step.completed).lastIndexOf(true);
+    const progressPercentage = lastCompletedIndex >= 0 ? ((lastCompletedIndex + 1) / steps.length) * 100 : 0;
+  
+    return (
+      <div className="w-full py-6">
+        <div className="flex items-center justify-between relative">
+          <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200">
+            <div 
+              className="h-full bg-interactive transition-all duration-500"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+          
+          {steps.map((step) => {
+            const IconComponent = step.icon;
+            const isCompleted = step.completed;
+            
+            return (
+              <div key={step.id} className="flex flex-col items-center relative z-10 text-center">
+                <div className={`
+                  w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                  ${isCompleted ? 'bg-interactive border-interactive text-white' : 'bg-white border-gray-300 text-gray-400'}
+                `}>
+                  <IconComponent size={18} />
+                </div>
+                <p className={`mt-2 text-xs font-medium w-20 ${isCompleted ? 'text-interactive' : 'text-gray-500'}`}>
+                  {step.label}
+                </p>
+                 {step.timestamp && isCompleted && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(step.timestamp).toLocaleDateString()}
+                    </p>
+                  )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+};
+
 const StatusBadge = ({ status }) => {
   const styles = {
-    pending: 'bg-yellow-500/10 text-yellow-600',
-    approved: 'bg-interactive/10 text-interactive',
-    'in-transit': 'bg-blue-500/10 text-blue-600',
-    'pickup-scheduled': 'bg-purple-500/10 text-purple-600',
-    'out-for-delivery': 'bg-indigo-500/10 text-indigo-600',
-    paid: 'bg-green-500/10 text-green-600',
-    overdue: 'bg-red-500/10 text-red-600',
+    'requested': 'bg-yellow-100 text-yellow-700',
+    'confirmed': 'bg-purple-100 text-purple-700',
+    'pickup-scheduled': 'bg-purple-100 text-purple-700',
+    'picked-up': 'bg-cyan-100 text-cyan-700',
+    'in-transit': 'bg-blue-100 text-blue-700',
+    'out-for-delivery': 'bg-indigo-100 text-indigo-700',
+    'delivered': 'bg-green-100 text-green-700',
   };
-  return <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${styles[status] || 'bg-black/10 text-text'}`}>{status.replace('-', ' ')}</span>;
+  return (
+    <span className={`px-3 py-1 text-xs font-semibold rounded-full capitalize ${styles[status?.toLowerCase()] || 'bg-gray-100 text-gray-700'}`}>
+      {status?.replace('-', ' ') || 'Unknown'}
+    </span>
+  );
 };
 
 
-// --- PAGE CONTENT COMPONENTS ---
+const ShipmentStatusPage = ({ statuses }) => {
+    const [expandedCards, setExpandedCards] = useState({});
 
+    const toggleCard = (id) => {
+        setExpandedCards(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
-const ShipmentStatusPage = ({ statuses }) => (
-  <div className="space-y-4">
-    {statuses.map(item => (
-      <div key={item.id} className="bg-white border border-black/5 rounded-lg p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-          <p className="font-semibold text-headings">{item.route}</p>
-          <StatusBadge status={item.status} />
-        </div>
-        <div className="w-full bg-black/10 rounded-full h-2"><div className="bg-interactive h-2 rounded-full" style={{ width: `${item.progress}%` }}></div></div>
-        <div className="flex justify-between text-sm text-text/70 mt-2">
-          <span>Progress: {item.progress}%</span>
-          <span>Est. Delivery: {item.delivery}</span>
-        </div>
+    return (
+      <div className="space-y-4">
+        {statuses.map(item => {
+          const isExpanded = expandedCards[item.id];
+          const progressSteps = getProgressSteps(item);
+
+          return (
+            <div key={item.id} className="bg-white border border-black/5 rounded-lg overflow-hidden transition-shadow hover:shadow-md">
+              {/* Collapsed View */}
+              <div className="p-4 cursor-pointer" onClick={() => toggleCard(item.id)}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                  <p className="font-semibold text-headings">{item.route}</p>
+                  <div className="flex items-center gap-4">
+                    <StatusBadge status={item.status} />
+                    {isExpanded ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
+                  </div>
+                </div>
+                <div className="w-full bg-black/10 rounded-full h-2">
+                  <div className="bg-interactive h-2 rounded-full" style={{ width: `${item.progress}%` }}></div>
+                </div>
+                <div className="flex justify-between text-sm text-text/70 mt-2">
+                  <span>Progress: {item.progress}%</span>
+                  <span>Est. Delivery: {item.expectedDeliveryDate}</span>
+                </div>
+              </div>
+
+              {/* Expanded View */}
+              {isExpanded && (
+                <div className="border-t border-black/5 bg-gray-50/50 p-6">
+                    <h4 className="text-md font-semibold mb-2 text-headings">Shipment Progress</h4>
+                    <ProgressTracker steps={progressSteps} currentProgress={item.progress} />
+                    
+                    <div className="grid md:grid-cols-2 gap-6 mt-6">
+                        {/* Route Information */}
+                        <div>
+                            <h5 className="font-semibold text-headings mb-2 flex items-center gap-2"><MapPin size={16}/> Route Information</h5>
+                            <div className="bg-white p-4 rounded-lg border border-black/5 space-y-3">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-3 h-3 rounded-full bg-green-500 mt-1.5 shrink-0"></div>
+                                    <div>
+                                        <p className="font-medium text-sm">Pickup Location</p>
+                                        <p className="text-xs text-text/70">{item.pickupAddressLine1}, {item.pickupAddressLine2} - {item.pickupPincode}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-3 h-3 rounded-full bg-red-500 mt-1.5 shrink-0"></div>
+                                    <div>
+                                        <p className="font-medium text-sm">Delivery Location</p>
+                                        <p className="text-xs text-text/70">{item.dropAddressLine1}, {item.dropAddressLine2} - {item.dropPincode}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Shipment Details */}
+                        <div>
+                            <h5 className="font-semibold text-headings mb-2 flex items-center gap-2"><Clipboard size={16}/> Shipment Details</h5>
+                            <div className="bg-white p-4 rounded-lg border border-black/5 text-sm space-y-2">
+                                <div className="flex justify-between"><span className="text-text/70">Tracking ID:</span> <span className="font-medium">TRK{item.id}</span></div>
+                                <div className="flex justify-between"><span className="text-text/70">Weight:</span> <span className="font-medium">{item.weightKg} kg</span></div>
+                                <div className="flex justify-between"><span className="text-text/70">Truck Size:</span> <span className="font-medium">{item.truckSize}</span></div>
+                                <div className="flex justify-between"><span className="text-text/70">Material Value:</span> <span className="font-medium">₹{item.materialValue?.toLocaleString()}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-3 mt-6">
+                        <Button variant="outline"><Phone size={14} className="mr-2"/> Contact Driver</Button>
+                        <Button variant="destructive"><AlertCircle size={14} className="mr-2"/> Report Issue</Button>
+                    </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
-    ))}
-  </div>
-);
+    );
+};
+
 
 const BillingPage = ({ billing }) => (
   <div className="space-y-8">
@@ -175,7 +335,8 @@ const BillingPage = ({ billing }) => (
             </div>
             <div className="flex items-center gap-4 self-end sm:self-center">
               <span className="text-sm font-medium text-text">{inv.amount}</span>
-              <StatusBadge status={inv.status} />
+              {/* This StatusBadge is for billing, different from the shipment one */}
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${inv.status === 'pending' ? 'bg-yellow-500/10 text-yellow-600' : inv.status === 'paid' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>{inv.status}</span>
             </div>
           </div>
         ))}
@@ -184,11 +345,9 @@ const BillingPage = ({ billing }) => (
   </div>
 );
 
-
-
 // --- MAIN DASHBOARD EXPORT ---
 export default function ShipperDashboard() {
-  const [activeView, setActiveView] = useState('Requests');
+  const [activeView, setActiveView] = useState('Status'); // Default to 'Status' to show the new component
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const renderContent = () => {
@@ -203,8 +362,6 @@ export default function ShipperDashboard() {
         return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
       case 'Profile':
         return <div>Profile Page Content</div>;
-      case 'Modification Requests':
-        return <div>Modification Requests Page Content</div>;
       default:
         return <ShipmentRequestsPage requests={shipperData.requests} />;
     }
@@ -234,9 +391,3 @@ export default function ShipperDashboard() {
     </div>
   );
 }
-
-
-
-
-
-
