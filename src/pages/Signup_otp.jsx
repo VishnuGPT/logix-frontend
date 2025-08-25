@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Switch } from '../components/ui/Switch';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { LoaderOne } from '../components/ui/loader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
@@ -54,7 +55,14 @@ const OtpInput = ({ onVerify, onResend, isLoading }) => {
       </div>
       <div className="flex justify-between items-center">
         <Button onClick={handleSubmit} disabled={isLoading}>
-          {isLoading ? 'Verifying...' : 'Verify'}
+          {isLoading ? (
+            <>
+              <LoaderOne />
+              <span className="ml-2">Verifying...</span>
+            </>
+          ) : (
+            'Verify'
+          )}
         </Button>
         <button
           type="button"
@@ -495,7 +503,14 @@ export default function SignupFormPage() {
                   disabled={isLoading}
                   className="w-full font-semibold bg-accent-cta cursor-pointer"
                 >
-                  {isLoading ? 'Creating account...' : 'Submit & Create Account'}
+                  {isLoading ? (
+                    <>
+                      <LoaderOne />
+                      <span className="ml-2">Creating account...</span>
+                    </>
+                  ) : (
+                    'Submit & Create Account'
+                  )}
                 </Button>
               </form>
             )}

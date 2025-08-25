@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, ChevronDown, MapPin, Calendar,User, Ruler, DollarSign, Package, Truck, Scale, Users, FileText, Download, Airplay } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LoaderOne } from '@/components/ui/loader';
 import { ModificationRequest } from './ModificationRequest';
 import axios from 'axios'
 const StatusBadge = ({ status }) => {
@@ -192,7 +193,14 @@ export const AdminModificationRequests = () => {
         }
         fetchData();
     }, []);
-    if (loading) return (<>Loading...</>)
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="flex flex-col items-center gap-4">
+                <LoaderOne />
+                <span className="text-lg font-medium text-gray-600">Loading...</span>
+            </div>
+        </div>
+    );
     return (
         <div className="space-y-4">
             {formData && formData.length > 0 ? (

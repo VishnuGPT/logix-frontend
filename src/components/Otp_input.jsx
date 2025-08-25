@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
+import { LoaderOne } from './ui/loader';
 
 const OtpInput = ({ onVerify, onResend, isLoading }) => {
   const [otp, setOtp] = useState(new Array(6).fill(''));
@@ -64,7 +65,14 @@ const OtpInput = ({ onVerify, onResend, isLoading }) => {
           disabled={isLoading}
           className="bg-[#0a2463] hover:bg-[#3e92cc] text-white px-6"
         >
-          {isLoading ? 'Verifying...' : 'Verify OTP'}
+          {isLoading ? (
+            <>
+              <LoaderOne />
+              <span className="ml-2">Verifying...</span>
+            </>
+          ) : (
+            'Verify OTP'
+          )}
         </Button>
         <div className="text-sm text-gray-600">
           {timer > 0 ? (

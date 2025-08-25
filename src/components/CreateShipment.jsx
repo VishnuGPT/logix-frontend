@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, Users, X, Edit, Plus, ChevronDown, BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, XCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LoaderOne } from '@/components/ui/loader';
 import axios from 'axios';
 import { useRef } from 'react';
 
@@ -119,15 +120,24 @@ const RequestPreview = ({ formData, onEdit, onConfirm, loading }) => {
         )}
       </div>
 
-      {/* Actions */}
-      <div className="pt-6 flex flex-col sm:flex-row gap-4">
-        <Button variant="outline" onClick={onEdit} className="flex-1 sm:flex-none sm:w-1/3 hover:cursor-pointer">
-          <Edit3 size={16} className="mr-2 " /> Edit Details
-        </Button>
-        <Button onClick={onConfirm} disabled={loading} className="flex-1 bg-green-500 sm:flex-none sm:w-2/3 hover:cursor-pointer">
-          <CheckCircle size={16} className="mr-2 " /> Confirm & Submit Request
-        </Button>
-      </div>
+              {/* Actions */}
+        <div className="pt-6 flex flex-col sm:flex-row gap-4">
+          <Button variant="outline" onClick={onEdit} className="flex-1 sm:flex-none sm:w-1/3 hover:cursor-pointer">
+            <Edit3 size={16} className="mr-2 " /> Edit Details
+          </Button>
+          <Button onClick={onConfirm} disabled={loading} className="flex-1 bg-green-500 sm:flex-none sm:w-2/3 hover:cursor-pointer">
+            {loading ? (
+              <>
+                <LoaderOne />
+                <span className="ml-2">Submitting...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle size={16} className="mr-2 " /> Confirm & Submit Request
+              </>
+            )}
+          </Button>
+        </div>
     </div>
   );
 };

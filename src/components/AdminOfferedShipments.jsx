@@ -6,6 +6,7 @@ import {
     Package, Scale, Ruler, Users, FileText, Airplay, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // ShadCN button
+import { LoaderOne } from '@/components/ui/loader';
 
 // --- Reusable Detail Section Component ---
 const DetailSection = ({ title, children }) => (
@@ -189,7 +190,14 @@ export const AdminOfferedShipments = () => {
 
 
     if (loading) {
-        return <div className="text-center p-8">Loading offers...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="flex flex-col items-center gap-4">
+                    <LoaderOne />
+                    <span className="text-lg font-medium text-gray-600">Loading offers...</span>
+                </div>
+            </div>
+        );
     }
     if (error) {
         return <div className="text-center p-8 text-red-600">{error}</div>;

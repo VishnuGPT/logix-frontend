@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Truck, MapPin, Phone, Building, Users, Clock, Package } from 'lucide-react';
+import { LoaderOne } from '../../components/ui/loader';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../images/logo.jpeg'; // Adjust the path as necessary
 
@@ -462,7 +463,7 @@ export default function CarrierSignup() {
               >
                 {isSubmitting ? (
                   <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <LoaderOne />
                     <span>Submitting...</span>
                   </div>
                 ) : (

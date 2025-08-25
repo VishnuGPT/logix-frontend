@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, FileText, Package, Edit3, CheckCircle, LogOut, Truck, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // Assuming you have this from ShadCN UI
+import { LoaderOne } from '@/components/ui/loader';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import {AdminRequestsRequests} from '../components/AdminShipmentRequests';
@@ -164,7 +165,14 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center gap-4">
+        <LoaderOne />
+        <span className="text-lg font-medium text-gray-600">Loading...</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="relative md:flex bg-background font-sans min-h-screen">

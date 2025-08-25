@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Phone, Hash, IdCard, Image as ImageIcon, ClipboardList, Trash2 } from 'lucide-react';
+import { LoaderOne } from '../components/ui/loader';
 import { useNavigate } from 'react-router-dom';
 
 // Reusable Input Component
@@ -240,7 +241,7 @@ export default function DriverRegistration() {
               >
                 {isSubmitting ? (
                   <div className="flex items-center space-x-2 justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <LoaderOne />
                     <span>Submitting...</span>
                   </div>
                 ) : (

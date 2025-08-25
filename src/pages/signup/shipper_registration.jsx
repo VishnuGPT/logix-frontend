@@ -4,6 +4,7 @@ import { Building, User, Lock, Check, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { LoaderOne } from '@/components/ui/loader';
 
 // --- Helper Components ---
 const Stepper = ({ currentStep, steps }) => (
@@ -114,7 +115,14 @@ export default function ShipperSignup() {
                 <div><label className={formLabel}>Owner Contact*</label><Input className={inputClassName} value={formData.ownerContact} onChange={e => updateField('ownerContact', e.target.value)} /></div>
               </div>
             </FormSection>
-            <div className="flex gap-4"><Button onClick={handlePrevStep} variant="outline">Back</Button><Button type="submit" variant="cta" className="w-full" disabled={isSubmitting}>{isSubmitting ? 'Submitting...' : 'Complete Registration'}</Button></div>
+            <div className="flex gap-4"><Button onClick={handlePrevStep} variant="outline">Back</Button><Button type="submit" variant="cta" className="w-full" disabled={isSubmitting}>{isSubmitting ? (
+              <>
+                <LoaderOne />
+                <span className="ml-2">Submitting...</span>
+              </>
+            ) : (
+              'Complete Registration'
+            )}</Button></div>
           </form>
         );
       default: return null;

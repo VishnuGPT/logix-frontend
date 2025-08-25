@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // Assuming custom UI components
 import { Input } from '@/components/ui/input';   // Assuming custom UI components
+import { LoaderOne } from '@/components/ui/loader';
 
 
 export default function AdminSignIn() {
@@ -132,7 +133,10 @@ export default function AdminSignIn() {
           <div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
-                'Signing In...'
+                <>
+                  <LoaderOne />
+                  <span className="ml-2">Signing In...</span>
+                </>
               ) : (
                 <>
                   <LogIn className="w-4 h-4 mr-2" />

@@ -182,6 +182,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, ChevronDown, MapPin, Calendar, Ruler, DollarSign,User, Package, Truck, Scale, Users, FileText, Download, Airplay, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LoaderOne } from '@/components/ui/loader';
 import { ModificationRequest } from './ModificationRequest';
 import axios from 'axios';
 
@@ -489,7 +490,14 @@ export const AdminRequestsRequests = () => {
         fetchData();
     }, []);
 
-    if (loading) return (<div className="text-center p-8">Loading...</div>)
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="flex flex-col items-center gap-4">
+                <LoaderOne />
+                <span className="text-lg font-medium text-gray-600">Loading...</span>
+            </div>
+        </div>
+    );
 
     return (
         <div className="space-y-4">
