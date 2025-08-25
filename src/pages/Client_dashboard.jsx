@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, X, Plus, ChevronDown, ChevronUp, BarChart2, FileText,Edit, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Clipboard, Clock, AlertCircle, Phone, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LoaderOne } from '@/components/ui/loader';
 import axios from 'axios';
 import { useRef } from 'react';
 import {ShipmentRequestForm} from '../components/CreateShipment'
@@ -73,21 +74,50 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
 
   return (
     <>
-      <div className={`fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
-      <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-black/10 flex flex-col z-40 transform transition-transform md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-4 border-b border-black/10">
+      {/* Overlay for mobile */}
+      <div
+        className={`fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity ${
+          sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setSidebarOpen(false)}
+      />
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 h-full w-64 bg-white border-r border-black/10 flex flex-col z-40
+          transform transition-transform
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:relative md:translate-x-0 md:h-screen
+        `}
+        style={{ minHeight: '100vh' }} // Ensures sidebar stretches to bottom
+      >
+        <div className="p-4 border-b border-black/10 flex-shrink-0">
           <img src="/LOGO.png" alt="LogiXjunction Logo" className="h-10 w-auto" />
         </div>
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map(item => (
-            <button key={item.name} onClick={() => { setActivePage(item.name); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-left transition-colors ${activePage === item.name ? 'bg-interactive/10 text-interactive' : 'text-text/80 hover:bg-black/5'}`}>
+            <button
+              key={item.name}
+              onClick={() => {
+                setActivePage(item.name);
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-left transition-colors ${
+                activePage === item.name
+                  ? 'bg-interactive/10 text-interactive'
+                  : 'text-text/80 hover:bg-black/5'
+              }`}
+            >
               {item.icon}
               <span>{item.name}</span>
             </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-black/10">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-text/80 hover:bg-black/5">
+        <div className="p-4 border-t border-black/10 flex-shrink-0">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-text/80 hover:bg-black/5"
+          >
             <LogOut size={18} />
             <span>Logout</span>
           </button>
@@ -175,7 +205,14 @@ useEffect(() => {
 }, [navigate]);
 
   // loader handling
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center gap-4">
+        <LoaderOne />
+        <span className="text-lg font-medium text-gray-600">Loading...</span>
+      </div>
+    </div>
+  );
 
   const renderContent = () => {
     switch (activeView) {
@@ -191,7 +228,6 @@ useEffect(() => {
         return <OffersPage />;
     }
   };
-  if(loading) return <div>Loading...</div>;
   return (
     <div className="relative md:flex bg-background font-sans min-h-screen">
       <Sidebar activePage={activeView} setActivePage={setActiveView} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
