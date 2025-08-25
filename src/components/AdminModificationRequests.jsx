@@ -43,14 +43,13 @@ const ShipmentCard = ({ req }) => {
 
 
     // Destructure all the new fields from the req prop for cleaner access
-    const { id, shipmentId,
+    const { id, shipper, shipmentId,
         status, pickupAddressLine2, dropAddressLine2, pickupState, dropState,
         materialType, expectedPickupDate, expectedDeliveryDate, pickupAddressLine1,
         pickupPincode, dropAddressLine1, dropPincode, weightKg, lengthFt, customMaterialType,
         widthFt, heightFt, bodyType, truckSize, manpower,
         noOfLabours, materialValue, additionalNotes, ebayBillUrl, transportMode, coolingType
     } = formData;
-    console.log(id)
 
 
     const handleApprove = async () => {
@@ -118,11 +117,11 @@ const ShipmentCard = ({ req }) => {
                                 <DetailItem icon={<DollarSign size={14} />} label="Material Value" value={`₹${materialValue?.toLocaleString('en-IN')}`} />
                             </DetailSection>
                             <DetailSection title="Shipper Profile">
-                                <DetailItem icon={<User size={14} />} label="Owner Name" value={ownerName} />
-                                <DetailItem icon={<User size={14} />} label="Contact Number" value={ownerContactNumber} />
-                                <DetailItem icon={<User size={14} />} label="Email" value={email} />
-                                <DetailItem icon={<User size={14} />} label="Company Address" value={companyAddress} />
-                                <DetailItem icon={<User size={14} />} label="Company Name" value={companyName} />
+                                <DetailItem icon={<User size={14} />} label="Owner Name" value={shipper.ownerName} />
+                                <DetailItem icon={<User size={14} />} label="Contact Number" value={shipper.ownerContactNumber} />
+                                <DetailItem icon={<User size={14} />} label="Email" value={shipper.email} />
+                                <DetailItem icon={<User size={14} />} label="Company Address" value={shipper.companyAddress} />
+                                <DetailItem icon={<User size={14} />} label="Company Name" value={shipper.companyName} />
                             </DetailSection>
 
 
