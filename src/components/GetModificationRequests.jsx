@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, Users, X, Edit, Plus, ChevronDown, BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, Airplay } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LoaderOne } from '@/components/ui/loader';
 import axios from 'axios';
 import { useRef } from 'react';
 
@@ -166,8 +167,22 @@ export const GetModificationRequests = () => {
 
 
 
-    if (loading) return <div>Loading...</div>;
-    if (!formData) return <div>Loading...</div>;
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="flex flex-col items-center gap-4">
+                <LoaderOne />
+                <span className="text-lg font-medium text-gray-600">Loading...</span>
+            </div>
+        </div>
+    );
+    if (!formData) return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="flex flex-col items-center gap-4">
+                <LoaderOne />
+                <span className="text-lg font-medium text-gray-600">Loading...</span>
+            </div>
+        </div>
+    );
 
     return (
         <div className="space-y-4">

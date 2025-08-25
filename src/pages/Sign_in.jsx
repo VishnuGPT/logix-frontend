@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { LoaderOne } from '../components/ui/loader';
 import { Eye, EyeOff } from 'lucide-react';
 
 // --- Helper component for the Google Icon ---
@@ -142,11 +143,18 @@ export default function SignInPage() {
 
             {error && <p className="text-sm text-center text-red-600 bg-red-100 p-3 rounded-lg">{error}</p>}
 
-            <div className="space-y-4 pt-2">
-              <Button type="submit" variant="cta" className="w-full font-semibold bg-accent-cta cursor-pointer" disabled={isLoading}>
-                {isLoading ? 'Signing In...' : 'Sign In'}
-              </Button>
-            </div>
+                                    <div className="space-y-4 pt-2">
+                            <Button type="submit" variant="cta" className="w-full font-semibold bg-accent-cta cursor-pointer" disabled={isLoading}>
+                                {isLoading ? (
+                                    <>
+                                        <LoaderOne />
+                                        <span className="ml-2">Signing In...</span>
+                                    </>
+                                ) : (
+                                    'Sign In'
+                                )}
+                            </Button>
+                        </div>
 
             <p className="text-center text-sm text-text/80 pt-4">
               Don't have an account?{' '}
