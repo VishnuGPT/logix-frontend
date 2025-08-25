@@ -478,7 +478,7 @@ export const AdminRequestsRequests = () => {
                     }
                 );
                 // Filter to only show 'REQUESTED' shipments initially
-                const requestedShipments = response.data.shipments.filter(s => s.status === 'REQUESTED');
+                const requestedShipments = response.data.shipments.filter(s => s.status === 'REQUESTED' || s.status === 'MODIFICATION_REQUESTED');
                 setFormData(requestedShipments);
             } catch (error) {
                 console.error("Error fetching shipment data:", error);
