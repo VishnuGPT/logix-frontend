@@ -9,7 +9,7 @@ export default function FAQ() {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const faqs = t("faqs", { returnObjects: true }); // returns the array from faq.json
+  const faqs = t("faqs", { returnObjects: true }); // now it's array of objects
 
   return (
     <section className="relative min-h-screen snap-start bg-lxj-softWhite px-6 py-20">
@@ -22,7 +22,7 @@ export default function FAQ() {
         </p>
 
         <div className="space-y-4">
-          {faqs.map((question, index) => (
+          {faqs.map((faq, index) => (
             <div
               key={index}
               className="border-b border-gray-200 pb-4 cursor-pointer"
@@ -30,7 +30,7 @@ export default function FAQ() {
             >
               <div className="flex justify-between items-center">
                 <h3 className="text-base font-medium text-gray-700">
-                  {question}
+                  {faq.question}
                 </h3>
                 <span className="text-gray-500">
                   {openIndex === index ? "−" : "+"}
@@ -38,8 +38,7 @@ export default function FAQ() {
               </div>
               {openIndex === index && (
                 <div className="mt-3 text-gray-600 text-sm min-h-[40px]">
-                  {/* You can add translated answers later in faq.json if needed */}
-                  <span className="text-gray-400">[ {t("answerPlaceholder", { defaultValue: "Add your answer here" })} ]</span>
+                  {faq.answer}
                 </div>
               )}
             </div>
