@@ -4,18 +4,53 @@
     "subtitle": "In case you have more questions, feel free to reach out to us."
   },
   "faqs": [
-    "What is LogiXjunction App?",
-    "How do I use LogiXjunction App?",
-    "How do I book a tempo/mini truck/bike or intercity courier services online from the LogiXjunction app?",
-    "Does LogiXjunction transport between cities?",
-    "What are the items that are prohibited by LogiXjunction?",
-    "What are the charges for goods transportation services by truck and two-wheelers?",
-    "Does LogiXjunction provide Packers and Movers services?",
-    "What types of goods does LogiXjunction transport?",
-    "How long does it take to transport goods via LogiXjunction?",
-    "Does LogiXjunction provide mini trucks like Tata Ace on monthly contract?",
-    "How does an API Integration with LogiXjunction work?",
-    "How does an API integration solve business problems?",
-    "What vehicle categories are available via the APIs?"
+    {
+      "question": "What is LogiXJunction App?",
+      "answer": "LogiXJunction is a technology-first logistics platform that simplifies freight movement across India. It connects businesses with reliable transporters, ensuring smarter, faster, and more transparent freight operations."
+    },
+    {
+      "question": "How do I use LogiXJunction App?",
+      "answer": "Simply download the app, sign up as a shipper or transporter, choose your vehicle type, enter pickup and drop details, and confirm your booking. The app provides real-time tracking and updates throughout the journey."
+    },
+    {
+      "question": "How do I book a tempo/mini truck/bike or intercity courier services online from the LogiXJunction app?",
+      "answer": "Select your required vehicle category on the app, add shipment details, compare prices, and book instantly. Our digital platform ensures secure payments and transparent pricing."
+    },
+    {
+      "question": "Does LogiXJunction transport between cities?",
+      "answer": "Yes, LogiXJunction supports both intracity and intercity freight movement, enabling businesses to expand their reach seamlessly."
+    },
+    {
+      "question": "What are the items that are prohibited by LogiXJunction?",
+      "answer": "Items such as hazardous chemicals, explosives, illegal goods, perishable food without proper storage, and restricted items under government law cannot be transported."
+    },
+    {
+      "question": "What are the charges for goods transportation services by truck and two-wheelers?",
+      "answer": "Charges depend on vehicle type, distance, load capacity, and route. The app provides an upfront price estimate before booking, ensuring cost transparency."
+    },
+    {
+      "question": "Does LogiXJunction provide Packers and Movers services?",
+      "answer": "Currently, LogiXJunction focuses on business freight and courier logistics. Packers and Movers services may be available in select regions or via partner networks."
+    },
+    {
+      "question": "What types of goods does LogiXJunction transport?",
+      "answer": "We transport a wide range of goods, including retail products, FMCG items, e-commerce parcels, raw materials, and industrial supplies (except restricted/prohibited items)."
+    },
+    {
+      "question": "How long does it take to transport goods via LogiXJunction?",
+      "answer": "Delivery time depends on the distance, type of shipment, and service chosen (intra-city or intercity). The app provides an estimated time before confirmation."
+    },
+    {
+      "question": "How does an API Integration with LogiXJunction work?",
+      "answer": "LogiXJunction offers APIs that integrate directly with business systems, enabling automated shipment booking, tracking, and reporting."
+    },
+    {
+      "question": "How does an API integration solve business problems?",
+      "answer": "API integration helps businesses reduce manual processes, optimize logistics costs, gain real-time visibility, and improve supply chain efficiency."
+    },
+    {
+      "question": "What vehicle categories are available via the APIs?",
+      "answer": "Through our APIs, businesses can access multiple vehicle options, including two-wheelers, tempos, mini trucks, and heavy commercial vehicles, depending on shipment needs."
+    }
   ]
 }
