@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // ShadCN button
 import { LoaderOne } from '@/components/ui/loader';
+import OfferFilter from './OfferFilter';
 
 // --- Reusable Detail Section Component ---
 const DetailSection = ({ title, children }) => (
@@ -166,6 +167,7 @@ const OfferCard = ({ offer, onAccept, onReject }) => {
 // --- OffersPage Component ---
 export const OffersPage = () => {
     const [offers, setOffers] = useState([]);
+    const [filteredOffers, setFilteredOffers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -182,7 +184,9 @@ export const OffersPage = () => {
                     `${import.meta.env.VITE_API_URL}/api/offer/shipper`,
                     config
                 );
-                setOffers(response.data.offers || []);
+                const fetchedOffers = response.data.offers || [];
+                setOffers(fetchedOffers);
+                setFilteredOffers(fetchedOffers);
             } catch (err) {
                 console.error("Failed to fetch offers:", err);
                 setError("Could not load offers. Please try again later.");
@@ -193,12 +197,98 @@ export const OffersPage = () => {
         fetchOffers();
     }, []);
 
+    // Filter handlers
+    const handleFilterChange = (filters) => {
+        let filtered = [...offers];
+
+        // Filter by status
+        if (filters.status && filters.status !== 'All') {
+            filtered = filtered.filter(offer => offer.status === filters.status);
+        }
+
+        // Filter by material type
+        if (filters.materialType && filters.materialType !== 'All') {
+            filtered = filtered.filter(offer => 
+                offer.shipment && offer.shipment.materialType === filters.materialType
+            );
+        }
+
+        // Filter by route
+        if (filters.route) {
+            filtered = filtered.filter(offer => {
+                if (!offer.shipment) return false;
+                const route = `${offer.shipment.pickupAddressLine2} to ${offer.shipment.dropAddressLine2}`;
+                return route.toLowerCase().includes(filters.route.toLowerCase());
+            });
+        }
+
+        // Filter by date range - NOW FUNCTIONAL
+        if (filters.dateRange) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            filtered = filtered.filter(offer => {
+                const offerDate = new Date(offer.createdAt || offer.created_at);
+                const offerDay = new Date(offerDate.getFullYear(), offerDate.getMonth(), offerDate.getDate());
+                
+                switch (filters.dateRange) {
+                    case 'today':
+                        return offerDay.getTime() === today.getTime();
+                    
+                    case 'week':
+                        const weekAgo = new Date(today);
+                        weekAgo.setDate(today.getDate() - 7);
+                        return offerDay >= weekAgo && offerDay <= today;
+                    
+                    case 'month':
+                        const monthAgo = new Date(today);
+                        monthAgo.setMonth(today.getMonth() - 1);
+                        return offerDay >= monthAgo && offerDay <= today;
+                    
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        setFilteredOffers(filtered);
+    };
+
+    const handleSearch = (searchTerm) => {
+        if (!searchTerm.trim()) {
+            setFilteredOffers(offers);
+            return;
+        }
+
+        const filtered = offers.filter(offer => {
+            const shipmentIdWithPrefix = `SHID${offer.shipmentId}`;
+            const searchLower = searchTerm.toLowerCase();
+            
+            return (
+                // Search by shipment ID with SHID prefix (e.g., "SHID1")
+                shipmentIdWithPrefix.toLowerCase().includes(searchLower) ||
+                // Search by shipment ID without prefix (e.g., just "1")
+                offer.shipmentId.toString().toLowerCase().includes(searchLower) ||
+                // Search by pickup location
+                (offer.shipment && offer.shipment.pickupAddressLine2.toLowerCase().includes(searchLower)) ||
+                // Search by drop location
+                (offer.shipment && offer.shipment.dropAddressLine2.toLowerCase().includes(searchLower))
+            );
+        });
+        
+        setFilteredOffers(filtered);
+    };
+
     const handleAcceptOffer = async (offerId) => {
         try {
             const token = localStorage.getItem("token");
             const config = { headers: { authorization: `Bearer ${token}` } };
             await axios.post(`${import.meta.env.VITE_API_URL}/api/offer/respond`, { offerId, action: 'accept' }, config);
-            setOffers(currentOffers => currentOffers.filter(offer => offer.id !== offerId));
+            
+            // Update both offers and filteredOffers
+            const updatedOffers = offers.filter(offer => offer.id !== offerId);
+            setOffers(updatedOffers);
+            setFilteredOffers(filteredOffers.filter(offer => offer.id !== offerId));
         } catch (err) {
             console.error("Failed to accept offer:", err);
             alert("Failed to accept offer. Please try again.");
@@ -210,7 +300,11 @@ export const OffersPage = () => {
             const token = localStorage.getItem("token");
             const config = { headers: { authorization: `Bearer ${token}` } };
             await axios.post(`${import.meta.env.VITE_API_URL}/api/offer/respond`, { offerId, action: 'reject' }, config);
-            setOffers(currentOffers => currentOffers.filter(offer => offer.id !== offerId));
+            
+            // Update both offers and filteredOffers
+            const updatedOffers = offers.filter(offer => offer.id !== offerId);
+            setOffers(updatedOffers);
+            setFilteredOffers(filteredOffers.filter(offer => offer.id !== offerId));
         } catch (err) {
             console.error("Failed to reject offer:", err);
             alert("Failed to reject offer. Please try again.");
@@ -227,16 +321,22 @@ export const OffersPage = () => {
             </div>
         );
     }
+    
     if (error) {
         return <div className="text-center p-8 text-red-600">{error}</div>;
     }
 
     return (
-        <div>
-            {offers.length > 0 ? (
+        <div className="space-y-6">
+            <OfferFilter 
+                onFilterChange={handleFilterChange}
+                onSearch={handleSearch}
+            />
+            
+            {filteredOffers.length > 0 ? (
                 <AnimatePresence>
                     <div className="space-y-4">
-                        {offers.map((offer) => (
+                        {filteredOffers.map((offer) => (
                             <OfferCard
                                 key={offer.id}
                                 offer={offer}
@@ -248,8 +348,15 @@ export const OffersPage = () => {
                 </AnimatePresence>
             ) : (
                 <div className="text-center p-8 border-2 border-dashed border-black/10 rounded-lg">
-                    <p className="font-semibold text-headings">No New Offers</p>
-                    <p className="text-text/60 text-sm mt-1">You currently have no pending offers from carriers.</p>
+                    <p className="font-semibold text-headings">
+                        {offers.length === 0 ? "No New Offers" : "No offers match your search criteria"}
+                    </p>
+                    <p className="text-text/60 text-sm mt-1">
+                        {offers.length === 0 
+                            ? "You currently have no pending offers from carriers."
+                            : "Try adjusting your filters or search terms."
+                        }
+                    </p>
                 </div>
             )}
         </div>

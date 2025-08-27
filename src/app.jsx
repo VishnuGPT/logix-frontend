@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSignIn from './pages/AdminSigin';
+import { Toaster } from 'react-hot-toast';
 // --- UI Components ---
 import Navbar from './components/ui/NavBar';
 import Footer from './components/ui/Footer';
@@ -43,38 +44,41 @@ const FullPageLayout = () => (
 // --- App Component ---
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* --- Public-facing pages (with Navbar + Footer) --- */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/join-us" element={<Careers />} />
-        </Route>
+    <>
+      <Router>
+        <Routes>
+          {/* --- Public-facing pages (with Navbar + Footer) --- */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/join-us" element={<Careers />} />
+          </Route>
 
-        {/* --- Full-screen pages (no Navbar/Footer) --- */}
-        <Route element={<FullPageLayout />}>
-          {/* Auth Routes */}
-          <Route path="/admin-sign-in" element={<AdminSignIn />} />
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignupFormPage />} />
+          {/* --- Full-screen pages (no Navbar/Footer) --- */}
+          <Route element={<FullPageLayout />}>
+            {/* Auth Routes */}
+            <Route path="/admin-sign-in" element={<AdminSignIn />} />
+            <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/sign-up" element={<SignupFormPage />} />
 
-          {/* Registration Routes */}
-          <Route path="/carrier-registration" element={<CarrierRegistration />} />
-          <Route path="/vehicle-registration" element={<VehicleRegistration />} />
-          <Route path="/driver-registration" element={<DriverRegistration />} />
+            {/* Registration Routes */}
+            <Route path="/carrier-registration" element={<CarrierRegistration />} />
+            <Route path="/vehicle-registration" element={<VehicleRegistration />} />
+            <Route path="/driver-registration" element={<DriverRegistration />} />
 
-          {/* Dashboard Routes */}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
-          <Route path="/client-dashboard" element={<ClientDashboard />} />
-          <Route path="/consignment" element={<Consignment />} />
-          <Route path="/available-transporter" element={<AvailableTransporters />} />
-        </Route>
-      </Routes>
-    </Router>
+            {/* Dashboard Routes */}
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
+            <Route path="/client-dashboard" element={<ClientDashboard />} />
+            <Route path="/consignment" element={<Consignment />} />
+            <Route path="/available-transporter" element={<AvailableTransporters />} />
+          </Route>
+        </Routes>
+      </Router>
+      <Toaster position="top-right" />
+    </>
   );
 }
 

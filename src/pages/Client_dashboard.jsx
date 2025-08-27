@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Menu, X, Plus, ChevronDown, ChevronUp, BarChart2, FileText,Edit, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Clipboard, Clock, AlertCircle, Phone, CheckCircle } from 'lucide-react';
+import { User, Menu, X, Plus, ChevronDown, ChevronUp, BarChart2, FileText,Edit, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Clipboard, Clock, AlertCircle, Phone, CheckCircle, Bell } from 'lucide-react'; // <-- Add Bell
 import { Button } from '@/components/ui/button';
 import { LoaderOne } from '@/components/ui/loader';
 import axios from 'axios';
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import ProfilePage from '../components/ProfilePage'
 import  {GetModificationRequests}  from '@/components/GetModificationRequests';
 import { OffersPage } from '../components/OfferRequests'; // <--- 1. IMPORT THE NEW COMPONENT
+import { toast } from 'react-hot-toast'; // Add this if using react-hot-toast or use your own toast/snackbar
 
 // --- MOCK DATA (Shipper Only) ---
 // const shipperData = {
@@ -127,15 +128,36 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
   );
 };
 
-const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick }) => (
+const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick, offerCount, onNotificationClick }) => (
   <header className="flex items-center justify-between mb-8">
     <div className="flex items-center gap-4">
       <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 -ml-2"><Menu className="h-6 w-6 text-text" /></button>
       <h1 className="text-2xl font-bold text-headings">{activePage}</h1>
     </div>
-    {activePage === 'Requests' && (
-      <Button onClick={onNewRequestClick}><Plus size={16} className="mr-2 hover:cursor-pointer" />New Request</Button>
-    )}
+    <div className="flex items-center gap-4">
+      {/* Show bell only on Profile page */}
+      {activePage === 'Profile' && (
+        <div className="relative">
+          <button className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+            <Bell 
+              size={24} 
+              className={`cursor-pointer transition-colors duration-200 ${
+                offerCount > 0 ? 'text-blue-600' : 'text-gray-600'
+              }`} 
+              onClick={onNotificationClick} 
+            />
+          </button>
+          {offerCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-[20px] bg-red-500 text-white text-xs font-bold rounded-full px-1 shadow-lg border-2 border-white">
+              {offerCount > 99 ? '99+' : offerCount}
+            </span>
+          )}
+        </div>
+      )}
+      {activePage === 'Requests' && (
+        <Button onClick={onNewRequestClick}><Plus size={16} className="mr-2 hover:cursor-pointer" />New Request</Button>
+      )}
+    </div>
   </header>
 );
   const handleLogout = () => {
@@ -154,6 +176,8 @@ const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick }) => (
   );
 };
 
+
+
 // --- MAIN DASHBOARD EXPORT ---
 export default function ShipperDashboard() {
   const [loading, setLoading] = useState(true);       
@@ -161,8 +185,9 @@ export default function ShipperDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shipperData, setShipperData] = useState({
     user: { name: "", company: "" },
+    requests: [], // Add requests array
   });
-
+  
   const navigate = useNavigate();
 
 useEffect(() => {
@@ -191,6 +216,18 @@ useEffect(() => {
       }));
       console.log("Shipper verified:", res.data);
 
+      // Fetch requests using the correct endpoint
+      const requestsRes = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/shipment/get-all-for-shipper`,
+        config
+      );
+      
+      // Update to use 'shipments' instead of 'requests'
+      setShipperData((prev) => ({
+        ...prev,
+        requests: requestsRes.data.shipments || [],
+      }));
+
     } catch (error) {
       console.error("Auth or data fetch error:", error);
       if (error.response?.status === 401) {
@@ -203,6 +240,67 @@ useEffect(() => {
 
   verifyAndFetch();
 }, [navigate]);
+
+  // Calculate offer notifications count using map - looking for "OFFER_SENT" status
+  const offerNotifications = shipperData.requests
+    .map(request => request.status && request.status === 'OFFER_SENT' ? 1 : 0)
+    .reduce((total, count) => total + count, 0);
+
+  // Handle notification click
+  const handleNotificationClick = () => {
+    const offersReceived = shipperData.requests
+      .filter(request => request.status && request.status === 'OFFER_SENT')
+      .map(request => ({
+        text: `• Offer received for shipment from ${request.pickupAddressLine2} to ${request.dropAddressLine2}`,
+        shipmentId: request.id
+      }));
+    
+    if (offersReceived.length > 0) {
+      // Show clickable toast notifications
+      toast.success(
+        <div className="space-y-2">
+          {offersReceived.map((offer, index) => (
+            <div 
+              key={index}
+              onClick={() => {
+                setActiveView('Offers');
+                toast.dismiss(); // Close the toast
+              }}
+              className="cursor-pointer hover:bg-blue-50 p-2 rounded transition-colors"
+            >
+              {offer.text}
+            </div>
+          ))}
+          <div className="text-xs text-gray-500 mt-2">
+            Click on any notification to view offers
+          </div>
+        </div>,
+        {
+          position: 'top-right',
+          duration: 6000, // Show for 6 seconds
+          style: {
+            marginTop: '60px',
+            marginRight: '20px',
+            color: '#3b82f6',
+            backgroundColor: '#eff6ff',
+            border: '1px solid #dbeafe',
+            maxWidth: '400px'
+          }
+        }
+      );
+    } else {
+      toast("No new offers available.", {
+        position: 'top-right',
+        style: {
+          marginTop: '60px',
+          marginRight: '20px',
+          color: '#3b82f6',
+          backgroundColor: '#eff6ff',
+          border: '1px solid #dbeafe',
+        }
+      });
+    }
+  };
 
   // loader handling
   if (loading) return (
@@ -223,11 +321,16 @@ useEffect(() => {
       case 'New Request':
         return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
       case 'Profile':
-        return <ProfilePage user={shipperData.user} />;
+        return (
+          <div className="relative">
+            <ProfilePage user={shipperData.user} />
+          </div>
+        );
       case 'Offers':
         return <OffersPage />;
     }
   };
+  
   return (
     <div className="relative md:flex bg-background font-sans min-h-screen">
       <Sidebar activePage={activeView} setActivePage={setActiveView} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -236,6 +339,8 @@ useEffect(() => {
           activePage={activeView === 'New Request' ? 'Create New Shipment Request' : activeView}
           setSidebarOpen={setSidebarOpen}
           onNewRequestClick={() => setActiveView('New Request')}
+          offerCount={offerNotifications}
+          onNotificationClick={handleNotificationClick}
         />
         <AnimatePresence mode="wait">
           <motion.div
