@@ -2,33 +2,51 @@ import React from "react";
 
 export default function AboutUs() {
   return (
-    <section className="bg-background py-20 px-6">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12">
-
+    <section className="bg-background py-15 px-6">
+      <div className="flex justify-center items-center">
+        
         {/* Left Text Section */}
-        <div className="flex-1 space-y-6">
+        <div className="space-y-6">
           <h2 className="text-4xl md:text-5xl font-extrabold text-headings">
-            Meet Our Team
+            Our Story
           </h2>
-          <p className="text-lg text-text/80 max-w-xl">
-            LogiXJunction is redefining how freight moves across India. In a sector often burdened by
-            inefficiencies, delays, and lack of transparency, we provide a technology-first platform that
-            simplifies logistics for both shippers and transporters.
-          </p>
-          <p className="text-lg text-text/80 max-w-xl">
-            Our mission is to create a smarter, faster, and more reliable freight ecosystem, where
-            businesses can ship goods without hassles and carriers can grow through steady demand and
-            fair opportunities.
-          </p>
-        </div>
 
-        {/* Right Placeholder Section */}
-        <div className="flex-1 hidden md:flex justify-center">
-          <div className="w-full max-w-md h-64 bg-gradient-to-r from-interactive to-indigo-500 rounded-2xl flex items-center justify-center text-white font-semibold text-lg shadow-lg">
-            Our Team Placeholder
+          <div className="space-y-4 text-lg text-text/80 max-w-2xl leading-relaxed">
+            <p>
+              LogiXJunction is redefining how freight moves across India. In a
+              sector often burdened by inefficiencies, delays, and lack of
+              transparency, we provide a technology-first platform that
+              simplifies logistics for both shippers and transporters.
+            </p>
+
+            <p>
+              Our mission is to create a smarter, faster, and more reliable
+              freight ecosystem, where businesses can ship goods without hassles
+              and carriers can grow through steady demand and fair opportunities.
+            </p>
+
+            <p>
+              Behind LogiXJunction is a diverse and dynamic team of engineers,
+              designers, and operations experts working together to solve real
+              logistics challenges. We combine data-driven insights, advanced
+              digital tools, and industry expertise to ensure efficiency, trust,
+              and scalability in freight operations.
+            </p>
+
+            <p>
+              What makes us unique is our customer-first approach. For shippers,
+              we deliver visibility, cost optimization, and reliable deliveries.
+              For carriers, we ensure transparent pricing, consistent business,
+              and secure payments.
+            </p>
+
+            <p>
+              Driven by our core values of innovation, reliability, and
+              collaboration, we aim to modernize logistics in India and set new
+              benchmarks for how freight should move in the 21st century.
+            </p>
           </div>
         </div>
-
       </div>
     </section>
   );
