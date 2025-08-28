@@ -10,7 +10,7 @@ export default function ContactCTASection() {
   const contactDetails = [
     {
       icon: <Mail className="w-6 h-6 text-interactive" />,
-      text: t("details.email"),
+      text: t("@logixjunction@gmail.com"),
       href: "mailto:logixjunction@gmail.com",
     },
     {

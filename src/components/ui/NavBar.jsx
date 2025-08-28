@@ -145,7 +145,7 @@ export default function Navbar() {
                 ))}
               </ul>
 
-              {/* Mobile Language Picker */}
+              {/* Mobile Language Picker
               <div className="px-6">
                 <h3 className="text-sm text-text/70 mb-2">Select Language</h3>
                 <div className="grid grid-cols-2 gap-2">
@@ -161,7 +161,7 @@ export default function Navbar() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               <div className="mt-auto p-6 border-t border-black/10 flex flex-col gap-4">
                 <Button asChild variant="ghost" size="lg" onClick={toggleMenu}>
