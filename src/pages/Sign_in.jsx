@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { LoaderOne } from '../components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 import { Eye, EyeOff } from 'lucide-react';
 
 // --- Helper component for the Google Icon ---

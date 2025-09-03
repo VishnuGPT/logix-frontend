@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Truck, MapPin, Phone, Building, Users, Clock, Package } from 'lucide-react';
-import { LoaderOne } from '../../components/ui/loader';
+import  LoaderOne  from '../../components/ui/LoadingScreen';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../images/logo.jpeg'; // Adjust the path as necessary
 

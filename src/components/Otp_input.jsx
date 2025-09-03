@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
-import { LoaderOne } from './ui/loader';
+import { LoaderOne } from './ui/LoadingScreen';
 
 const OtpInput = ({ onVerify, onResend, isLoading }) => {
   const [otp, setOtp] = useState(new Array(6).fill(''));

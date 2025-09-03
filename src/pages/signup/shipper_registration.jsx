@@ -4,7 +4,7 @@ import { Building, User, Lock, Check, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { LoaderOne } from '@/components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 
 // --- Helper Components ---
 const Stepper = ({ currentStep, steps }) => (

@@ -6,7 +6,7 @@ import {
     Package, Scale, Ruler, Users, FileText, Airplay, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // ShadCN button
-import { LoaderOne } from '@/components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 
 // --- Reusable Detail Section Component ---
 const DetailSection = ({ title, children }) => (

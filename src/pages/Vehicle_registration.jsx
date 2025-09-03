@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Package, Truck, FileText, Hash, Ruler, Layers, ClipboardList, Trash2 } from 'lucide-react';
-import { LoaderOne } from '../components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 import { useNavigate } from 'react-router-dom';
 
 // Reusable Input Component (copied from signup for consistency)

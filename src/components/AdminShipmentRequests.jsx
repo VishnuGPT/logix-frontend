@@ -182,7 +182,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit, ChevronDown, MapPin, Calendar, Ruler, DollarSign,User, Package, Truck, Scale, Users, FileText, Download, Airplay, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LoaderOne } from '@/components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 import { ModificationRequest } from './ModificationRequest';
 import axios from 'axios';
 

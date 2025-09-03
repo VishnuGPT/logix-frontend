@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, Users, X, Edit, Plus, ChevronDown, BarChart2, FileText, DollarSign, LogOut, Package, MapPin, Calendar, Truck, Scale, Ruler, Upload, Edit3, CheckCircle, File, Airplay } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LoaderOne } from '@/components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 import axios from 'axios';
 import { useRef } from 'react';
 

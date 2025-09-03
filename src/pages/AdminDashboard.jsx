@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Menu, FileText, Package, Edit3, CheckCircle, LogOut, Truck, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // Assuming you have this from ShadCN UI
-import { LoaderOne } from '@/components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import {AdminRequestsRequests} from '../components/AdminShipmentRequests';

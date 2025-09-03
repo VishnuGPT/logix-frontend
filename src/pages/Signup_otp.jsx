@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Switch } from '../components/ui/Switch';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { LoaderOne } from '../components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen"; // full-page loader
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react'; // Loader2 = small inline spinner
 import axios from 'axios';
 
-// --- OTP Input Component (fixed backspace handling) ---
-const OtpInput = ({ onVerify, onResend, isLoading }) => {
+// --- OTP Input Component ---
+const OtpInput = ({ onVerify, onResend, isVerifying, isResending, resendAvailableIn }) => {
   const [otp, setOtp] = useState(Array(6).fill(''));
   const inputRefs = useRef([]);
 
@@ -53,24 +53,37 @@ const OtpInput = ({ onVerify, onResend, isLoading }) => {
           />
         ))}
       </div>
-      <div className="flex justify-between items-center">
-        <Button onClick={handleSubmit} disabled={isLoading}>
-          {isLoading ? (
+      <div className="flex flex-col items-center gap-2">
+        <Button
+          className="bg-green-600 w-[40%] hover:cursor-pointer"
+          onClick={handleSubmit}
+          disabled={isVerifying}
+        >
+          {isVerifying ? (
             <>
-              <LoaderOne />
-              <span className="ml-2">Verifying...</span>
+              <Loader2 className="animate-spin h-4 w-4 mr-2" />
+              Verifying...
             </>
           ) : (
             'Verify'
           )}
         </Button>
-        <button
-          type="button"
-          onClick={onResend}
-          className="text-sm text-blue-600 underline"
-        >
-          Resend OTP
-        </button>
+
+        {/* Resend OTP with timer */}
+        {resendAvailableIn > 0 ? (
+          <p className="text-sm text-gray-500">
+            Resend available in {resendAvailableIn}s
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={onResend}
+            disabled={isResending}
+            className="text-sm text-blue-600 hover:cursor-pointer underline"
+          >
+            {isResending ? "Resending..." : "Resend OTP"}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -97,6 +110,10 @@ const ProgressIndicator = ({ currentStep, totalSteps }) => {
 
 // --- Main Signup Page Component ---
 export default function SignupFormPage() {
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendAvailableIn, setResendAvailableIn] = useState(0);
+
   const [step, setStep] = useState(1);
   const [role, setRole] = useState('shipper');
   const [phone, setPhone] = useState('');
@@ -116,6 +133,19 @@ export default function SignupFormPage() {
   const navigate = useNavigate();
 
   const handleNextStep = () => setStep((prev) => prev + 1);
+
+  const startResendCooldown = () => {
+    setResendAvailableIn(120);
+    const interval = setInterval(() => {
+      setResendAvailableIn((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   const validateForm = () => {
     if (!companyName) return 'Company Name is required';
@@ -167,18 +197,17 @@ export default function SignupFormPage() {
   const handleSendOtp = () => {
     setError('');
     if (email.match(/^\S+@\S+\.\S+$/)) {
-      setIsLoading(true);
+      setIsResending(true);
       axios
-        .post(`${import.meta.env.VITE_API_URL}/api/validate/send-email-otp`, {
-          email,
-        })
+        .post(`${import.meta.env.VITE_API_URL}/api/validate/send-email-otp`, { email })
         .then(() => {
           setShowOtp(true);
+          startResendCooldown();
         })
         .catch(() => {
           setError('Failed to send OTP. Please try again.');
         })
-        .finally(() => setIsLoading(false));
+        .finally(() => setIsResending(false));
     } else {
       setError('Please enter a valid Email Address');
     }
@@ -186,19 +215,12 @@ export default function SignupFormPage() {
 
   const handleVerifyOtp = (otp) => {
     setError('');
-    setIsLoading(true);
+    setIsVerifying(true);
     axios
-      .post(`${import.meta.env.VITE_API_URL}/api/validate/verify-email-otp`, {
-        email,
-        otp,
-      })
-      .then(() => {
-        setOtpVerified(true);
-      })
-      .catch(() => {
-        setError('Invalid OTP. Please try again.');
-      })
-      .finally(() => setIsLoading(false));
+      .post(`${import.meta.env.VITE_API_URL}/api/validate/verify-email-otp`, { email, otp })
+      .then(() => setOtpVerified(true))
+      .catch(() => setError('Invalid OTP. Please try again.'))
+      .finally(() => setIsVerifying(false));
   };
 
   const formAnimation = {
@@ -208,18 +230,15 @@ export default function SignupFormPage() {
     transition: { ease: 'easeInOut', duration: 0.3 },
   };
 
-  // Dynamic background color for step 1 role selection
-  const step1Bg =
-    role === "shipper"
-      ? "bg-[#f5ced7]" // pinkish for shipper
-      : "bg-[#e6f2fa]"; // bluish for transporter
-
   return (
     <div
       className={`min-h-screen flex flex-col md:flex-row items-center justify-center p-6 transition-colors duration-500 
       ${role === 'shipper' ? 'bg-blue-50' : 'bg-green-50'}`}
     >
-      {/* Left Side: Company Motto */}
+      {/* ✅ Full-page loader */}
+      <LoaderOne show={isLoading} />
+
+      {/* Left Side */}
       <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left mb-12 md:mb-0 md:pr-10">
         <img
           src="/LOGO_LxJ2.png"
@@ -237,7 +256,7 @@ export default function SignupFormPage() {
         </p>
       </div>
 
-      {/* Right Side: Multi-Step Signup Form */}
+      {/* Right Side */}
       <div className="w-full max-w-lg bg-white rounded-lg p-8 border border-black/5">
         <ProgressIndicator currentStep={step} totalSteps={3} />
         <AnimatePresence mode="wait">
@@ -251,11 +270,10 @@ export default function SignupFormPage() {
                 <p className="text-text/70 mb-8">Select your role to get started.</p>
                 <div className="flex items-center justify-center gap-4 my-6">
                   <span
-                    className={`font-medium transition ${
-                      role === 'shipper'
-                        ? 'text-accent-cta'
-                        : 'text-text/60'
-                    }`}
+                    className={`font-medium transition ${role === 'shipper'
+                      ? 'text-accent-cta'
+                      : 'text-text/60'
+                      }`}
                   >
                     Shipper
                   </span>
@@ -268,11 +286,10 @@ export default function SignupFormPage() {
                     }
                   />
                   <span
-                    className={`font-medium transition ${
-                      role === 'transporter'
-                        ? 'text-interactive'
-                        : 'text-text/60'
-                    }`}
+                    className={`font-medium transition ${role === 'transporter'
+                      ? 'text-interactive'
+                      : 'text-text/60'
+                      }`}
                   >
                     Transporter
                   </span>
@@ -316,8 +333,8 @@ export default function SignupFormPage() {
                       {isLoading
                         ? 'Sending...'
                         : showOtp
-                        ? 'Sent'
-                        : 'Send OTP'}
+                          ? 'Sent'
+                          : 'Send OTP'}
                     </Button>
                   </div>
                 </div>
@@ -326,9 +343,12 @@ export default function SignupFormPage() {
                   <OtpInput
                     onVerify={handleVerifyOtp}
                     onResend={handleSendOtp}
-                    isLoading={isLoading}
+                    isVerifying={isVerifying}
+                    isResending={isResending}
+                    resendAvailableIn={resendAvailableIn}
                   />
                 )}
+
 
                 {error && (
                   <p className="text-sm text-center text-red-600">{error}</p>
@@ -494,10 +514,12 @@ export default function SignupFormPage() {
                   </small>
                 </div>
 
+                {/* Error message */}
                 {error && (
                   <p className="text-sm text-center text-red-600">{error}</p>
                 )}
 
+                {/* Submit Button */}
                 <Button
                   type="submit"
                   disabled={isLoading}
@@ -520,3 +542,4 @@ export default function SignupFormPage() {
     </div>
   );
 }
+

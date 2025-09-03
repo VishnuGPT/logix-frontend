@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button'; // Assuming custom UI components
 import { Input } from '@/components/ui/input';   // Assuming custom UI components
-import { LoaderOne } from '@/components/ui/loader';
+import LoaderOne from "@/components/ui/LoadingScreen";
 
 
 export default function AdminSignIn() {
