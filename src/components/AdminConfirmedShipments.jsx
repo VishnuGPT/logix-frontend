@@ -180,11 +180,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, ChevronDown, MapPin, Calendar, Ruler, DollarSign, Package, Truck, Scale, Users, FileText, Download, Airplay, X, Loader2, User } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Clock, ChevronDown, MapPin, Calendar, Ruler, DollarSign, Package, Truck, Scale, Users, FileText, Download, Airplay, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from "@/components/ui/card";
 import LoaderOne from "@/components/ui/LoadingScreen";
-import { ModificationRequest } from './ModificationRequest';
 import axios from 'axios';
+import AdminPushStatusComponent from './AdminStatusPush';
 
 // --- HELPER COMPONENTS (No Changes Here) ---
 
@@ -218,132 +219,141 @@ const DetailSection = ({ title, children }) => (
     </div>
 );
 
+const ShipmentStatus = ({ shipmentId }) => {
+  const [statusUpdates, setStatusUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-// --- MODIFIED MODAL COMPONENT ---
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/progress/get-status`,
+          { shipmentId },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-const OfferModal = ({ req, onClose, onSuccess }) => {
-    const [offerData, setOfferData] = useState({
-        offerPrice: '',
-        expectedPickupDate: req.expectedPickupDate,
-        expectedDeliveryDate: req.expectedDeliveryDate,
-    });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setOfferData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleOfferSubmit = async (e) => {
-        e.preventDefault();
-        if (!offerData.offerPrice) {
-            setError('Offer price is required.');
-            return;
+        if (res.data.success) {
+          setStatusUpdates(res.data.statusUpdates || []);
+          console.log("Status updates fetched successfully:", res.data.statusUpdates);
         }
-        setIsSubmitting(true);
-        setError('');
-
-        try {
-            const payload = {
-                shipmentId: req.id,
-                offerPrice: Number(offerData.offerPrice),
-                expectedPickupDate: offerData.expectedPickupDate,
-                expectedDeliveryDate: offerData.expectedDeliveryDate,
-            };
-
-            await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/offer/shipment`,
-                payload,
-                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-            );
-
-            // Call the success callback passed from the parent
-            onSuccess({ newStatus: 'OFFER_SENT', offerPrice: payload.offerPrice });
-
-        } catch (err) {
-            console.error("Failed to submit offer:", err);
-            setError(err.response?.data?.message || 'An error occurred. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
+      } catch (err) {
+        console.error("Error fetching status:", err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchStatus();
+  }, [shipmentId]);
 
+  if (loading) {
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-            onClick={onClose}
-        >
-            <motion.div
-                initial={{ scale: 0.9, y: -20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: -20 }}
-                className="bg-white rounded-lg shadow-xl w-full max-w-md"
-                onClick={e => e.stopPropagation()} // Prevent closing when clicking inside modal
-            >
-                <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold text-headings">Make an Offer</h3>
-                    <p className="text-sm text-text/70">For Shipment ID: SHID{req.id}</p>
-                </div>
-                <form onSubmit={handleOfferSubmit}>
-                    <div className="p-6 space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text mb-1">Offer Price (₹)</label>
-                            <input
-                                type="number"
-                                name="offerPrice"
-                                value={offerData.offerPrice}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-black/20 rounded-md focus:ring-interactive focus:border-interactive"
-                                placeholder="e.g., 50000"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text mb-1">Confirm Pickup Date</label>
-                            <input
-                                type="date"
-                                name="expectedPickupDate"
-                                value={offerData.expectedPickupDate}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-black/20 rounded-md focus:ring-interactive focus:border-interactive"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text mb-1">Confirm Delivery Date</label>
-                            <input
-                                type="date"
-                                name="expectedDeliveryDate"
-                                value={offerData.expectedDeliveryDate}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-black/20 rounded-md focus:ring-interactive focus:border-interactive"
-                                required
-                            />
-                        </div>
-                        {error && <p className="text-sm text-red-600">{error}</p>}
-                    </div>
-                    <div className="flex justify-end gap-3 bg-gray-50 p-4 rounded-b-lg">
-                        <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Submit Offer
-                        </Button>
-                    </div>
-                </form>
-            </motion.div>
-        </motion.div>
+      <div className="flex justify-center items-center p-10">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+      </div>
     );
+  }
+
+  if (!statusUpdates.length) {
+    return (
+      <div className="text-center text-slate-500 p-10">
+        No status updates available yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {statusUpdates.map((update, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.1 }}
+        >
+          <Card className="rounded-2xl shadow-md border border-slate-200">
+            <CardContent className="p-6">
+              {/* Title + Description */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    {update.title}
+                  </h3>
+                  <p className="text-slate-600 mt-1">{update.description}</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <Clock className="h-4 w-4" />
+                  {new Date(update.date).toLocaleString()}
+                </div>
+              </div>
+
+              {/* File Previews */}
+              <div className="flex flex-col md:flex-row gap-6 mt-4">
+                {/* Image Preview */}
+                {update.imageUrl && (
+                  <div className="flex flex-col items-start">
+                    <img
+                      src={update.imageUrl}
+                      alt="Shipment proof"
+                      className="rounded-md border w-40 h-40 object-cover shadow-sm"
+                    />
+                    <a
+                      href={update.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <ImageIcon className="h-4 w-4" /> View Full Image
+                      </Button>
+                    </a>
+                  </div>
+                )}
+
+                {/* PDF Preview */}
+                {update.pdfUrl && (
+                  <div className="flex flex-col items-start">
+                    <iframe
+                      src={update.pdfUrl}
+                      className="w-40 h-40 border rounded-md shadow-sm"
+                      title={`Shipment PDF ${idx}`}
+                    />
+                    <a
+                      href={update.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <FileText className="h-4 w-4" /> View Full PDF
+                      </Button>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
+  );
 };
 
 // --- MODIFIED Main Card Component ---
 
 const ShipmentCard = ({ req }) => {
     const [expanded, setExpanded] = useState(false);
-    const [isOffering, setIsOffering] = useState(false);
     // Use a single state to hold all shipment data, making it easy to update
     const [shipmentData, setShipmentData] = useState({ ...req });
     console.log(shipmentData)
@@ -351,32 +361,6 @@ const ShipmentCard = ({ req }) => {
     // Destructure for easier access in JSX
     const { id, shipper, cost, status, pickupAddressLine2, dropAddressLine2, pickupState, dropState, materialType, expectedPickupDate, expectedDeliveryDate, pickupAddressLine1, pickupPincode, dropAddressLine1, dropPincode, weightKg, lengthFt, customMaterialType, widthFt, heightFt, bodyType, truckSize, manpower, noOfLabours, materialValue, additionalNotes, ebayBillUrl, transportMode, coolingType, offerPrice } = shipmentData;
 
-    // This function will be called by the modal on a successful submission
-    const handleOfferSuccess = ({ newStatus, offerPrice }) => {
-        setShipmentData(prev => ({
-            ...prev,
-            status: newStatus,
-            offerPrice: offerPrice,
-        }));
-        setIsOffering(false); // Close the modal
-    };
-
-    const handleReject = async () => {
-        if (!window.confirm("Are you sure you want to reject this shipment request?")) return;
-
-        try {
-            await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/shipment/reject`,
-                { shipmentId: id },
-                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-            );
-            // Update UI instantly on success
-            setShipmentData(prev => ({ ...prev, status: 'REJECTED' }));
-        } catch (error) {
-            console.error("Failed to reject shipment:", error);
-            alert("Could not reject the shipment. Please try again.");
-        }
-    };
 
 
     return (
@@ -437,15 +421,16 @@ const ShipmentCard = ({ req }) => {
                                     <DetailItem icon={<User size={14} />} label="Company Name" value={shipper.companyName} />
                                 </DetailSection>
                             </div>
+                            <div>
+                                <ShipmentStatus shipmentId={id} />
+                            </div>
+                            <div>
+                                <AdminPushStatusComponent shipmentId={id} />
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </motion.div>
-
-            {/* Render the Offer Modal */}
-            <AnimatePresence>
-                {isOffering && <OfferModal req={shipmentData} onClose={() => setIsOffering(false)} onSuccess={handleOfferSuccess} />}
-            </AnimatePresence>
         </>
     );
 };
