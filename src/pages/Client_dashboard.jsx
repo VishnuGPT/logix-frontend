@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Menu, X, Plus, Edit, DollarSign, LogOut, Bell, Building, Mail, Phone } from 'lucide-react';
+import { User, Menu, X, Plus, Edit, DollarSign, LogOut, Bell, Building, Mail, Phone, Check, Calendar, Scale, MapPin, Package, Ruler, Truck, Users, Airplay, Loader2, Image as ImageIcon, FileText, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LoaderOne from "@/components/ui/LoadingScreen";
 import axios from 'axios';
@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { GetModificationRequests } from '@/components/GetModificationRequests';
 import { OffersPage } from '../components/OfferRequests';
 import { toast } from 'react-hot-toast';
+import { Card, CardContent } from "@/components/ui/card";
 
 const ProfileQuickView = ({ user }) => (
   <div className="flex items-center gap-3">
@@ -173,10 +174,11 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen, onLog
     { name: 'Requests', icon: <Plus size={20} /> },
     { name: 'Offers', icon: <DollarSign size={20} /> },
     { name: 'Modifications', icon: <Edit size={20} /> },
+    { name: 'Confirmed Shipments', icon: <Check size={20} /> }, // <-- Add this line
   ];
 
   return (
-    <>
+    <>                            
       {/* Mobile Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -295,6 +297,130 @@ const DashboardHeader = ({ activePage, setSidebarOpen, onNewRequestClick, offerC
         <ProfileQuickView user={user} />
       </div>
     </header>
+  );
+};
+
+const ShipmentStatus = ({ shipmentId }) => {
+  const [statusUpdates, setStatusUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/progress/get-status`,
+          { shipmentId },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (res.data.success) {
+          setStatusUpdates(res.data.statusUpdates || []);
+        }
+      } catch (err) {
+        console.error("Error fetching status:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStatus();
+  }, [shipmentId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-10">
+        <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+      </div>
+    );
+  }
+
+  if (!statusUpdates.length) {
+    return (
+      <div className="text-center text-slate-500 p-10">
+        No status updates available yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {statusUpdates.map((update, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.1 }}
+        >
+          <Card className="rounded-2xl shadow-md border border-slate-200">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    {update.title}
+                  </h3>
+                  <p className="text-slate-600 mt-1">{update.description}</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <Clock className="h-4 w-4" />
+                  {new Date(update.date).toLocaleString()}
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row gap-6 mt-4">
+                {update.imageUrl && (
+                  <div className="flex flex-col items-start">
+                    <img
+                      src={update.imageUrl}
+                      alt="Shipment proof"
+                      className="rounded-md border w-40 h-40 object-cover shadow-sm"
+                    />
+                    <a
+                      href={update.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <ImageIcon className="h-4 w-4" /> View Full Image
+                      </Button>
+                    </a>
+                  </div>
+                )}
+                {update.pdfUrl && (
+                  <div className="flex flex-col items-start">
+                    <iframe
+                      src={update.pdfUrl}
+                      className="w-40 h-40 border rounded-md shadow-sm"
+                      title={`Shipment PDF ${idx}`}
+                    />
+                    <a
+                      href={update.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <FileText className="h-4 w-4" /> View Full PDF
+                      </Button>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
   );
 };
 
@@ -462,13 +588,20 @@ export default function ShipperDashboard() {
           />
         );
       case 'Requests':
-        return <ShipmentRequestsPage />;
+        return <ShipmentRequestsPage requests={shipperData.requests} />;
       case 'Modifications':
         return <GetModificationRequests />;
       case 'New Request':
         return <ShipmentRequestForm onComplete={() => setActiveView('Requests')} />;
       case 'Offers':
         return <OffersPage />;
+      case 'Confirmed Shipments':
+        return (
+          <ShipmentRequestsPage
+            requests={shipperData.requests.filter(r => r.status === 'CONFIRMED')}
+            isConfirmedTab
+          />
+        );
       default:
         return (
           <DashboardOverview
