@@ -225,8 +225,73 @@ export const OffersPage = () => {
     fetchOffers();
   }, []);
 
-  const handleFilterChange = (filters) => { /* Filtering logic remains the same */ };
-  const handleSearch = (searchTerm) => { /* Search logic remains the same */ };
+  // Filter logic for OfferFilter
+  const handleFilterChange = (filters) => {
+    let filtered = [...offers];
+
+    // Status filter
+    if (filters.status && filters.status !== 'All') {
+      filtered = filtered.filter(offer => offer.status === filters.status);
+    }
+
+    // Material type filter
+    if (filters.materialType && filters.materialType !== 'All') {
+      filtered = filtered.filter(offer =>
+        offer.materialType === filters.materialType ||
+        (offer.shipment && offer.shipment.materialType === filters.materialType)
+      );
+    }
+
+    // Route filter
+    if (filters.route) {
+      filtered = filtered.filter(offer =>
+        `${offer.pickupAddressLine2 || ''} to ${offer.dropAddressLine2 || ''}`.toLowerCase().includes(filters.route.toLowerCase())
+      );
+    }
+
+    // Date range filter
+    if (filters.dateRange) {
+      const now = new Date();
+      filtered = filtered.filter(offer => {
+        const offerDate = new Date(offer.created_at || offer.createdAt);
+        switch (filters.dateRange) {
+          case 'today':
+            return offerDate.toDateString() === now.toDateString();
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return offerDate >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return offerDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    setFilteredOffers(filtered);
+  };
+
+  // Search logic for OfferFilter
+  const handleSearch = (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setFilteredOffers(offers);
+      return;
+    }
+
+    const filtered = offers.filter(offer => {
+      const shipmentIdWithPrefix = `SHID${offer.shipmentId}`;
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        shipmentIdWithPrefix.toLowerCase().includes(searchLower) ||
+        (offer.shipmentId && offer.shipmentId.toString().toLowerCase().includes(searchLower)) ||
+        (offer.pickupAddressLine2 && offer.pickupAddressLine2.toLowerCase().includes(searchLower)) ||
+        (offer.dropAddressLine2 && offer.dropAddressLine2.toLowerCase().includes(searchLower))
+      );
+    });
+
+    setFilteredOffers(filtered);
+  };
 
   // Generic handler for responding to an offer
   const handleOfferResponse = async (offerId, action) => {
@@ -300,3 +365,98 @@ export const OffersPage = () => {
     </div>
   );
 };
+
+
+
+
+const OfferRequests = () => {
+  const [offers, setOffers] = useState([]);
+  const [filteredOffers, setFilteredOffers] = useState([]);
+  const [filters, setFilters] = useState({
+    status: 'All',
+    dateRange: '',
+    materialType: 'All',
+    route: '',
+    search: '',
+  });
+
+
+  // Filtering logic
+  useEffect(() => {
+    let result = [...offers];
+
+    // Search by Shipment ID (with or without SHID prefix)
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(offer => {
+        const shipmentIdWithPrefix = `SHID${offer.shipmentId}`;
+        return (
+          shipmentIdWithPrefix.toLowerCase().includes(searchLower) ||
+          offer.shipmentId?.toString().toLowerCase().includes(searchLower) ||
+          offer.pickupAddressLine2?.toLowerCase().includes(searchLower) ||
+          offer.dropAddressLine2?.toLowerCase().includes(searchLower)
+        );
+      });
+    }
+
+    // Status filter
+    if (filters.status && filters.status !== 'All') {
+      result = result.filter(offer => offer.status === filters.status);
+    }
+
+    // Material type filter
+    if (filters.materialType && filters.materialType !== 'All') {
+      result = result.filter(offer => offer.materialType === filters.materialType);
+    }
+
+    // Route filter
+    if (filters.route) {
+      result = result.filter(offer =>
+        `${offer.pickupAddressLine2} to ${offer.dropAddressLine2}`.toLowerCase().includes(filters.route.toLowerCase())
+      );
+    }
+
+    // Date range filter
+    if (filters.dateRange) {
+      const now = new Date();
+      result = result.filter(offer => {
+        const offerDate = new Date(offer.created_at || offer.createdAt);
+        switch (filters.dateRange) {
+          case 'today':
+            return offerDate.toDateString() === now.toDateString();
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return offerDate >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return offerDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    setFilteredOffers(result);
+  }, [offers, filters]);
+
+  // Handlers for OfferFilter
+  const handleSearch = (search) => {
+    setFilters(prev => ({ ...prev, search }));
+  };
+
+  const handleFilterChange = (changed) => {
+    setFilters(prev => ({ ...prev, ...changed }));
+  };
+
+  return (
+    <div>
+      <OfferFilter onSearch={handleSearch} onFilterChange={handleFilterChange} />
+      {/* Render filteredOffers here */}
+      {filteredOffers.map(offer => (
+        <div key={offer.id}>{/* Offer card or row */}</div>
+      ))}
+    </div>
+  );
+};
+
+export default OfferRequests;
