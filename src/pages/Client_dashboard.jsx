@@ -134,12 +134,12 @@ const DashboardOverview = ({ user, requests, offerCount, onViewOffers }) => {
                   </div>
                   <div
                     className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === "ACTIVE"
-                        ? "bg-blue-100 text-blue-700"
-                        : request.status === "DELIVERED"
-                          ? "bg-green-100 text-green-700"
-                          : request.status === "OFFER_SENT"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-gray-100 text-gray-700"
+                      ? "bg-blue-100 text-blue-700"
+                      : request.status === "DELIVERED"
+                        ? "bg-green-100 text-green-700"
+                        : request.status === "OFFER_SENT"
+                          ? "bg-purple-100 text-purple-700"
+                          : "bg-gray-100 text-gray-700"
                       }`}
                   >
                     {request.status}
@@ -169,7 +169,7 @@ const DashboardOverview = ({ user, requests, offerCount, onViewOffers }) => {
   );
 };
 
-const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen, onLogout }) => {
+const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen, onLogout,setRefreshCounter }) => {
   const navItems = [
     { name: 'Dashboard', icon: <User size={20} /> },
     { name: 'Requests', icon: <Plus size={20} /> },
@@ -179,7 +179,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen, onLog
   ];
 
   return (
-    <>                            
+    <>
       {/* Mobile Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -211,6 +211,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen, onLog
               onClick={() => {
                 setActivePage(item.name);
                 setSidebarOpen(false);
+                if(item.name==="Dashboard"){setRefreshCounter(prev=>prev+1)}
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activePage === item.name
                 ? 'bg-blue-50 text-blue-600 shadow-sm border border-blue-100'
@@ -309,6 +310,9 @@ export default function ShipperDashboard() {
     user: { name: "", company: "" },
     requests: [],
   });
+  const[refreshCounter,setRefreshCounter]=useState(0);
+
+
 
   const navigate = useNavigate();
 
@@ -359,7 +363,7 @@ export default function ShipperDashboard() {
     };
 
     verifyAndFetch();
-  }, [navigate]);
+  }, [navigate, refreshCounter]);
 
   // Logout Handler
   const handleLogout = () => {
@@ -495,6 +499,7 @@ export default function ShipperDashboard() {
   return (
     <div className="flex bg-slate-50 font-sans min-h-screen text-slate-800">
       <Sidebar
+        setRefreshCounter={setRefreshCounter}
         activePage={activeView}
         setActivePage={setActiveView}
         sidebarOpen={sidebarOpen}
