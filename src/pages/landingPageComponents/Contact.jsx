@@ -59,9 +59,6 @@ export default function ContactCTASection() {
           <Button asChild variant="cta" size="lg">
             <Link to="/sign-up">{t("buttons.getStarted")}</Link>
           </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/schedule-demo">{t("buttons.scheduleDemo")}</Link>
-          </Button>
         </div>
       </div>
     </section>

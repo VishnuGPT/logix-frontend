@@ -69,7 +69,6 @@ const OtpInput = ({ onVerify, onResend, isVerifying, isResending, resendAvailabl
           )}
         </Button>
 
-        {/* Resend OTP with timer */}
         {resendAvailableIn > 0 ? (
           <p className="text-sm text-gray-500">
             Resend available in {resendAvailableIn}s
@@ -89,6 +88,7 @@ const OtpInput = ({ onVerify, onResend, isVerifying, isResending, resendAvailabl
   );
 };
 
+// --- Progress Indicator ---
 const ProgressIndicator = ({ currentStep, totalSteps }) => {
   const progress = (currentStep / totalSteps) * 100;
   return (
@@ -108,11 +108,12 @@ const ProgressIndicator = ({ currentStep, totalSteps }) => {
   );
 };
 
-// --- Main Signup Page Component ---
+// --- Main Signup Component ---
 export default function SignupFormPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendAvailableIn, setResendAvailableIn] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [step, setStep] = useState(1);
   const [role, setRole] = useState('shipper');
@@ -121,8 +122,8 @@ export default function SignupFormPage() {
   const [gst, setGst] = useState('');
   const [showOtp, setShowOtp] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
+  const [emailVerifiedToken, setEmailVerifiedToken] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [companyName, setCompanyName] = useState('');
@@ -164,6 +165,11 @@ export default function SignupFormPage() {
       setError(validationError);
       return;
     }
+    if (!emailVerifiedToken) {
+      setError("Please verify your email before proceeding.");
+      return;
+    }
+
     setError('');
     setIsLoading(true);
 
@@ -179,6 +185,11 @@ export default function SignupFormPage() {
           companyName,
           companyAddress,
           gstNumber: gst,
+        },
+        {
+          headers: {
+            'emailverificationtoken': emailVerifiedToken
+          }
         }
       );
 
@@ -187,7 +198,7 @@ export default function SignupFormPage() {
     } catch (err) {
       console.error('Registration error:', err);
       setError(
-        err.response?.data?.message || 'Failed to register. Please try again.'
+        err.response?.data?.errors[0] || 'Failed to register. Please try again.'
       );
     } finally {
       setIsLoading(false);
@@ -196,21 +207,24 @@ export default function SignupFormPage() {
 
   const handleSendOtp = () => {
     setError('');
-    if (email.match(/^\S+@\S+\.\S+$/)) {
-      setIsResending(true);
-      axios
-        .post(`${import.meta.env.VITE_API_URL}/api/validate/send-email-otp`, { email })
-        .then(() => {
-          setShowOtp(true);
-          startResendCooldown();
-        })
-        .catch(() => {
-          setError('Failed to send OTP. Please try again.');
-        })
-        .finally(() => setIsResending(false));
-    } else {
+    if (!email.match(/^\S+@\S+\.\S+$/)) {
       setError('Please enter a valid Email Address');
+      return;
     }
+    setIsResending(true);
+    axios
+      .post(`${import.meta.env.VITE_API_URL}/api/validate/send-email-otp`, { email })
+      .then((response) => {
+        setShowOtp(true);
+        setOtpVerified(false);
+        setEmailVerifiedToken('');
+        startResendCooldown();
+        console.log('OTP sent:', response.data);
+      })
+      .catch((error) => {
+        setError(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+      })
+      .finally(() => setIsResending(false));
   };
 
   const handleVerifyOtp = (otp) => {
@@ -218,8 +232,13 @@ export default function SignupFormPage() {
     setIsVerifying(true);
     axios
       .post(`${import.meta.env.VITE_API_URL}/api/validate/verify-email-otp`, { email, otp })
-      .then(() => setOtpVerified(true))
-      .catch(() => setError('Invalid OTP. Please try again.'))
+      .then((res) => {
+        setOtpVerified(true);
+        setEmailVerifiedToken(res.data.token);
+      })
+      .catch((err) => {
+        setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
+      })
       .finally(() => setIsVerifying(false));
   };
 
@@ -235,10 +254,8 @@ export default function SignupFormPage() {
       className={`min-h-screen flex flex-col md:flex-row items-center justify-center p-6 transition-colors duration-500 
       ${role === 'shipper' ? 'bg-blue-50' : 'bg-green-50'}`}
     >
-      {/* ✅ Full-page loader */}
       <LoaderOne show={isLoading} />
 
-      {/* Left Side */}
       <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left mb-12 md:mb-0 md:pr-10">
         <img
           src="/LOGO_LxJ2.png"
@@ -256,12 +273,10 @@ export default function SignupFormPage() {
         </p>
       </div>
 
-      {/* Right Side */}
       <div className="w-full max-w-lg bg-white rounded-lg p-8 border border-black/5">
         <ProgressIndicator currentStep={step} totalSteps={3} />
         <AnimatePresence mode="wait">
           <motion.div key={step} {...formAnimation}>
-            {/* --- STEP 1: ROLE SELECTION --- */}
             {step === 1 && (
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-headings mb-4">
@@ -269,51 +284,30 @@ export default function SignupFormPage() {
                 </h2>
                 <p className="text-text/70 mb-8">Select your role to get started.</p>
                 <div className="flex items-center justify-center gap-4 my-6">
-                  <span
-                    className={`font-medium transition ${role === 'shipper'
-                      ? 'text-accent-cta'
-                      : 'text-text/60'
-                      }`}
-                  >
+                  <span className={`font-medium transition ${role === 'shipper' ? 'text-accent-cta' : 'text-text/60'}`}>
                     Shipper
                   </span>
                   <Switch
                     checked={role === 'transporter'}
-                    onCheckedChange={() =>
-                      setRole((r) =>
-                        r === 'shipper' ? 'transporter' : 'shipper'
-                      )
-                    }
+                    onCheckedChange={() => setRole(role === 'shipper' ? 'transporter' : 'shipper')}
                   />
-                  <span
-                    className={`font-medium transition ${role === 'transporter'
-                      ? 'text-interactive'
-                      : 'text-text/60'
-                      }`}
-                  >
+                  <span className={`font-medium transition ${role === 'transporter' ? 'text-interactive' : 'text-text/60'}`}>
                     Transporter
                   </span>
                 </div>
-                <Button
-                  onClick={handleNextStep}
-                  className="w-full mt-8 font-semibold bg-accent-cta cursor-pointer"
-                >
+                <Button onClick={handleNextStep} className="w-full mt-8 font-semibold bg-accent-cta cursor-pointer">
                   Next
                 </Button>
               </div>
             )}
 
-            {/* --- STEP 2: EMAIL VERIFICATION --- */}
             {step === 2 && (
               <div className="space-y-5">
                 <h2 className="text-2xl font-bold text-center text-headings">
                   Verify Your EMAIL
                 </h2>
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="email" className="block mb-1.5 text-sm font-medium text-text">
                     Email Address
                   </label>
                   <div className="flex gap-2">
@@ -323,18 +317,14 @@ export default function SignupFormPage() {
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      disabled={showOtp}
+                      disabled={isLoading || showOtp}
                     />
                     <Button
                       type="button"
                       onClick={handleSendOtp}
-                      disabled={isLoading || showOtp}
+                      disabled={isLoading || isResending || showOtp}
                     >
-                      {isLoading
-                        ? 'Sending...'
-                        : showOtp
-                          ? 'Sent'
-                          : 'Send OTP'}
+                      {isLoading ? 'Sending...' : showOtp ? 'Sent' : 'Send OTP'}
                     </Button>
                   </div>
                 </div>
@@ -349,10 +339,7 @@ export default function SignupFormPage() {
                   />
                 )}
 
-
-                {error && (
-                  <p className="text-sm text-center text-red-600">{error}</p>
-                )}
+                {error && <p className="text-sm text-center text-red-600">{error}</p>}
 
                 <Button
                   onClick={handleNextStep}
@@ -364,19 +351,14 @@ export default function SignupFormPage() {
               </div>
             )}
 
-            {/* --- STEP 3: BUSINESS DETAILS --- */}
             {step === 3 && (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <h2 className="text-2xl font-bold text-center text-headings">
                   Final Details
                 </h2>
 
-                {/* Company Name */}
                 <div>
-                  <label
-                    htmlFor="companyName"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="companyName" className="block mb-1.5 text-sm font-medium text-text">
                     Company Name
                   </label>
                   <Input
@@ -389,12 +371,8 @@ export default function SignupFormPage() {
                   />
                 </div>
 
-                {/* Company Address */}
                 <div>
-                  <label
-                    htmlFor="companyAddress"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="companyAddress" className="block mb-1.5 text-sm font-medium text-text">
                     Company Address
                   </label>
                   <Input
@@ -407,12 +385,8 @@ export default function SignupFormPage() {
                   />
                 </div>
 
-                {/* Owner Name */}
                 <div>
-                  <label
-                    htmlFor="ownerName"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="ownerName" className="block mb-1.5 text-sm font-medium text-text">
                     Owner Name
                   </label>
                   <Input
@@ -425,12 +399,8 @@ export default function SignupFormPage() {
                   />
                 </div>
 
-                {/* Owner Contact Number */}
                 <div>
-                  <label
-                    htmlFor="ownerContactNumber"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="ownerContactNumber" className="block mb-1.5 text-sm font-medium text-text">
                     Owner Contact Number
                   </label>
                   <Input
@@ -443,12 +413,8 @@ export default function SignupFormPage() {
                   />
                 </div>
 
-                {/* Phone Number */}
                 <div>
-                  <label
-                    htmlFor="phone"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="phone" className="block mb-1.5 text-sm font-medium text-text">
                     Phone Number
                   </label>
                   <Input
@@ -461,12 +427,8 @@ export default function SignupFormPage() {
                   />
                 </div>
 
-                {/* GST Number */}
                 <div>
-                  <label
-                    htmlFor="gst"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="gst" className="block mb-1.5 text-sm font-medium text-text">
                     GST Number
                   </label>
                   <Input
@@ -477,17 +439,11 @@ export default function SignupFormPage() {
                     onChange={(e) => setGst(e.target.value.toUpperCase())}
                     required
                   />
-                  <small className="text-xs text-text/60">
-                    Format: 11AAAAA1111A1Z1
-                  </small>
+                  <small className="text-xs text-text/60">Format: 11AAAAA1111A1Z1</small>
                 </div>
 
-                {/* Password */}
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-1.5 text-sm font-medium text-text"
-                  >
+                  <label htmlFor="password" className="block mb-1.5 text-sm font-medium text-text">
                     Password
                   </label>
                   <div className="relative">
@@ -509,20 +465,14 @@ export default function SignupFormPage() {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
-                  <small className="text-xs text-text/60">
-                    Minimum 8 characters
-                  </small>
+                  <small className="text-xs text-text/60">Minimum 8 characters</small>
                 </div>
 
-                {/* Error message */}
-                {error && (
-                  <p className="text-sm text-center text-red-600">{error}</p>
-                )}
+                {error && <p className="text-sm text-center text-red-600">{error}</p>}
 
-                {/* Submit Button */}
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || !otpVerified}
                   className="w-full font-semibold bg-accent-cta cursor-pointer"
                 >
                   {isLoading ? (
@@ -542,4 +492,3 @@ export default function SignupFormPage() {
     </div>
   );
 }
-

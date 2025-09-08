@@ -55,14 +55,14 @@ const OfferFilter = ({ onFilterChange, onSearch }) => {
 
   const clearAllFilters = () => {
     setSearchTerm('');
-    setSelectedStatus('All');
+    setSelectedStatus('ALL');
     setAdvancedFilters({
       dateRange: '',
       materialType: '',
       route: ''
     });
     onSearch('');
-    onFilterChange({ status: 'All', dateRange: '', materialType: '', route: '' });
+    onFilterChange({ status: 'PENDING', dateRange: '', materialType: '', route: '' });
   };
 
   return (

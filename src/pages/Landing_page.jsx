@@ -14,11 +14,8 @@ export default function LandingPage() {
     <div>
       <Hero />
       <KeyFeatures />
-      <Testimonials />
-      <CaseStudyShowcase />
       <FAQ />
       <CitiesChart />
-      <News />
       <ContactCTASection />
     </div>
   );

@@ -53,7 +53,7 @@ export default function SignInPage() {
       if (res.ok) {
         localStorage.setItem('token', data.token);
         const dashboardPath = userType === 'Shipper' ? '/client-dashboard' : '/transporter-dashboard';
-        setTimeout(() => navigate(dashboardPath), 2000);
+        navigate(dashboardPath);
       } else {
         setError(data.message || 'Invalid credentials. Please try again.');
       }

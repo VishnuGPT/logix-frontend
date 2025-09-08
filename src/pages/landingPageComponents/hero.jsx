@@ -18,16 +18,10 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => navigate("/sign-up")}
-              className="px-8 py-3 bg-accent-cta text-white rounded-full font-semibold transition hover:opacity-80"
+              className="px-8 py-3 bg-accent-cta hover:cursor-pointer text-white rounded-full font-semibold transition hover:opacity-80"
             >
               {t("cta")}
             </button>
-            <a
-              href="/about-us"
-              className="px-8 py-3 border-2 border-background/50 rounded-full text-background font-semibold transition hover:bg-background hover:text-headings"
-            >
-              {t("explore")}
-            </a>
           </div>
         </div>
       </div>
