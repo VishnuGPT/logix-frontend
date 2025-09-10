@@ -105,7 +105,7 @@ export default function SignInPage() {
 
           <form className="space-y-5" onSubmit={handleLogin}>
             <div>
-              <label htmlFor="contact" className="block mb-1.5 text-sm font-medium text-text">Email or Phone</label>
+              <label htmlFor="contact" className="block mb-1.5 text-sm font-medium text-text">Email</label>
               <Input
                 id="contact"
                 type="text"
